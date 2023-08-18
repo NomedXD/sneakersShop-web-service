@@ -1,6 +1,5 @@
 package by.teachmeskills.sneakersshopwebserviceexam.dto;
 
-import by.teachmeskills.sneakersshopwebserviceexam.domain.Order;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -52,5 +51,5 @@ public class UserDto {
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private List<Order> orders;
+    private List<OrderDto> orders;
 }
