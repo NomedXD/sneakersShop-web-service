@@ -24,6 +24,7 @@ import java.util.List;
 @Entity
 @Table(name = "orders")
 public class Order extends BaseEntity{
+
     @Column(name = "price")
     private Float price;
 

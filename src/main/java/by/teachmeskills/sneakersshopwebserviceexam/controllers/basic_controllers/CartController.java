@@ -3,10 +3,13 @@ package by.teachmeskills.sneakersshopwebserviceexam.controllers.basic_controller
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.CartDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.CheckoutRequestResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
+import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
 import by.teachmeskills.sneakersshopwebserviceexam.services.OrderService;
 import by.teachmeskills.sneakersshopwebserviceexam.services.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +17,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/cart")
@@ -28,9 +33,13 @@ public class CartController {
 
     @DeleteMapping("/remove/{productId}")
     public ResponseEntity<CartDto> deleteProductFromCart(@PathVariable(name = "productId") Integer productId,
-                                              @RequestBody CartDto cartDto) {
-        cartDto.removeProduct(productId);
-        return new ResponseEntity<>(cartDto, HttpStatus.OK);
+                                                         @Valid @RequestBody CartDto cartDto, BindingResult result) {
+        if(!result.hasErrors()) {
+            cartDto.removeProduct(productId);
+            return new ResponseEntity<>(cartDto, HttpStatus.OK);
+        } else {
+            throw new ValidationException(Objects.requireNonNull(result.getFieldError()).getField());
+        }
     }
 
     @PutMapping("/add/{productId}")

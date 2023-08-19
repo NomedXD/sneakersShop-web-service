@@ -1,8 +1,5 @@
 package by.teachmeskills.sneakersshopwebserviceexam.domain;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
@@ -10,23 +7,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 @Data
 @SuperBuilder
 public class Cart {
-    /*
-     *  Annotated for the future admin account in shop
-     */
-    @NotNull(message = "Field is null validation error")
-    @Size(max = 100, message = "Out of validation bounds")
+
     private final Map<Integer, Product> products;
 
-    @NotNull(message = "Field is null validation error")
-    @PositiveOrZero(message = "Field must be positive or zero")
     private float totalPrice;
 
-    // Здесь можно не делать отдельное поле, а сделать в теории обертку над Product, но муторно -_-
-    @NotNull(message = "Field is null validation error")
-    @Size(max = 100, message = "Out of validation bounds")
     private Map<Integer, Integer> productQuantities;
 
     public Cart() {
@@ -48,7 +37,7 @@ public class Cart {
         productQuantities.remove(productId);
     }
 
-    public static Cart checkCart(Product product, Cart cart){
+    public static Cart checkCart(Product product, Cart cart) {
         if (cart != null) {
             cart.addProduct(product);
         } else {

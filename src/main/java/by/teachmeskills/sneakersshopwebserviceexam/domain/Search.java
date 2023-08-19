@@ -8,11 +8,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 public class Search {
-    // Additional fields while filtering in search page
+
     private String searchString;
 
     public Search(String searchString) {
         this.searchString = searchString;
     }
-
 }

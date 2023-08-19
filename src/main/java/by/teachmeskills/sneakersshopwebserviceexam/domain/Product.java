@@ -9,10 +9,6 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -29,9 +25,6 @@ import java.util.List;
 @Table(name = "products")
 public class Product extends BaseEntity {
 
-    @NotNull(message = "Field is null validation error")
-    @Pattern(regexp = "[a-zA-Z ,.'-]+", message = "Field does not satisfy regexp")
-    @Size(max = 45, message = "Out of validation bounds")
     @Column(name = "name")
     private String name;
 
@@ -40,7 +33,6 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "image_id")
     private Image image;
 
-    @NotNull(message = "Field is null validation error")
     @Column(name = "description")
     private String description;
 
@@ -48,8 +40,6 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @NotNull(message = "Field is null validation error")
-    @Positive(message = "Field must be positive")
     @Column(name = "price")
     private float price;
 
