@@ -1,5 +1,6 @@
 package by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -12,10 +13,12 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 public class ImageDto {
-    @NotNull(message = "Field is null validation error")
+
+    @NotNull(message = "Id field in imageDto is null")
+    @Min(value = 1, message = "Id field in imageDto less then 1")
     private Integer id;
 
-    @NotNull(message = "Field is null validation error")
-    @Size(max = 45, message = "Out of validation bounds")
+    @NotNull(message = "Path field in categoryDto is null")
+    @Size(max = 45, message = "Out of bounds imageDto path")
     private String path;
 }

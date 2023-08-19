@@ -1,9 +1,10 @@
 package by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto;
 
-import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderDto;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -18,28 +19,32 @@ import java.util.List;
 @SuperBuilder
 @NoArgsConstructor
 public class UserDto {
-    @NotNull(message = "Field is null validation error")
+
+    @NotNull(message = "Id field in userDto is null")
+    @Min(value = 1, message = "Id field in userDto less then 1")
     private Integer id;
 
-    @NotNull(message = "Field is null validation error")
-    @Email(message = "Field does not satisfy regexp")
+    @NotNull(message = "Mail field in userDto is null")
+    @Email(message = "Mail field in productDto does not satisfy regexp")
     private String mail;
 
-    @NotNull(message = "Field is null validation error")
-    @Pattern(regexp = "^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$", message = "Field does not satisfy regexp")
+    @NotNull(message = "Password field in userDto is null")
+    @Pattern(regexp = "^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$", message = "Password field in productDto does not satisfy regexp")
     private String password;
 
-    @NotNull(message = "Field is null validation error")
-    @Pattern(regexp = "[a-zA-Z ,.'-]+", message = "Field does not satisfy regexp")
+    @NotNull(message = "Name field in userDto is null")
+    @Pattern(regexp = "[a-zA-Z ,.'-]+", message = "Name field in productDto does not satisfy regexp")
     private String name;
 
-    @NotNull(message = "Field is null validation error")
-    @Pattern(regexp = "[a-zA-Z ,.'-]+", message = "Field does not satisfy regexp")
+    @NotNull(message = "Surname field in userDto is null")
+    @Pattern(regexp = "[a-zA-Z ,.'-]+", message = "Surname field in productDto does not satisfy regexp")
     private String surname;
 
-    @NotNull(message = "Field is null validation error")
+    @NotNull(message = "Date field in userDto is null")
     private LocalDate date;
 
+    @NotNull(message = "Current balance field in userDto is null")
+    @PositiveOrZero(message = "Current balance in userDto must be positive or zero")
     private Float currentBalance;
 
     private String mobile;

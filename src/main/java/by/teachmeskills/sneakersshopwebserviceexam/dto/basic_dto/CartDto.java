@@ -16,16 +16,16 @@ import java.util.Map;
 @SuperBuilder
 public class CartDto {
 
-    @NotNull(message = "Field is null validation error")
-    @Size(max = 100, message = "Out of validation bounds")
+    @NotNull(message = "Product field in cartDto is null")
+    @Size(max = 100, message = "Out of bounds cartDto products")
     private final Map<Integer, ProductDto> products;
 
-    @NotNull(message = "Field is null validation error")
-    @PositiveOrZero(message = "Field must be positive or zero")
+    @NotNull(message = "Total price field in cartDto is null")
+    @PositiveOrZero(message = "Total price in categoryDto must be positive or zero")
     private float totalPrice;
 
-    @NotNull(message = "Field is null validation error")
-    @Size(max = 100, message = "Out of validation bounds")
+    @NotNull(message = "Products quantity field in cartDto is null")
+    @Size(max = 100, message = "Out of bounds cartDto products quantity")
     private Map<Integer, Integer> productQuantities;
 
     public void addProduct(ProductDto productDto) {

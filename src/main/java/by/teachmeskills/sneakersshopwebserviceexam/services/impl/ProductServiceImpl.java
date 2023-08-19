@@ -1,6 +1,5 @@
 package by.teachmeskills.sneakersshopwebserviceexam.services.impl;
 
-import by.teachmeskills.sneakersshopwebserviceexam.domain.Cart;
 import by.teachmeskills.sneakersshopwebserviceexam.domain.Product;
 import by.teachmeskills.sneakersshopwebserviceexam.domain.Search;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.ProductDto;
@@ -9,17 +8,14 @@ import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.Sear
 import by.teachmeskills.sneakersshopwebserviceexam.dto.converters.ProductConverter;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.converters.SearchConverter;
 import by.teachmeskills.sneakersshopwebserviceexam.enums.EshopConstants;
-import by.teachmeskills.sneakersshopwebserviceexam.enums.PagesPathEnum;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
 import by.teachmeskills.sneakersshopwebserviceexam.repositories.ProductRepository;
 import by.teachmeskills.sneakersshopwebserviceexam.services.ProductService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 import java.util.Objects;
@@ -106,7 +102,7 @@ public class ProductServiceImpl implements ProductService {
         Objects.requireNonNull(response.getBody()).setProducts(productList.stream().map(productConverter::toDto).toList());
         return response;
     }
-
+    /*
     @Override
     public ModelAndView applyProductsQuantity(Cart cart, HttpServletRequest request) {
         for (Product product : cart.getProducts()) {
@@ -119,4 +115,6 @@ public class ProductServiceImpl implements ProductService {
         }
         return new ModelAndView(PagesPathEnum.CART_PAGE.getPath());
     }
+
+     */
 }

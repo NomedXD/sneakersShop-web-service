@@ -1,5 +1,6 @@
 package by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto;
 
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,5 +13,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SearchDto {
+
+    @Size(max = 100, message = "Out of bounds searchDto search string")
     private String searchString;
 }
