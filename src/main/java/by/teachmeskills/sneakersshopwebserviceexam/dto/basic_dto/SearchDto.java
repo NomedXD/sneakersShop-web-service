@@ -1,4 +1,4 @@
-package by.teachmeskills.sneakersshopwebserviceexam.dto;
+package by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -6,14 +6,11 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
-
 @Data
 @EqualsAndHashCode
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginResponseWrapperDto {
-    private UserDto user;
-    private List<CategoryDto> categories;
+public class SearchDto {
+    private String searchString;
 }

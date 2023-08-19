@@ -2,7 +2,7 @@ package by.teachmeskills.sneakersshopwebserviceexam.dto.converters;
 
 
 import by.teachmeskills.sneakersshopwebserviceexam.domain.Product;
-import by.teachmeskills.sneakersshopwebserviceexam.dto.ProductDto;
+import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.ProductDto;
 import by.teachmeskills.sneakersshopwebserviceexam.repositories.CategoryRepository;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;

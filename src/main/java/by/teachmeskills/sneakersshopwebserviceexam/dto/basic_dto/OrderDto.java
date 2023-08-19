@@ -1,4 +1,4 @@
-package by.teachmeskills.sneakersshopwebserviceexam.dto;
+package by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

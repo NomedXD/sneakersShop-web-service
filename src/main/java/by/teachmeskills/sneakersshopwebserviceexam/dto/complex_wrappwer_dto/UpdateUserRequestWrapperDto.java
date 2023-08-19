@@ -1,5 +1,6 @@
-package by.teachmeskills.sneakersshopwebserviceexam.dto;
+package by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto;
 
+import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RegistrationRequestWrapperDto {
+public class UpdateUserRequestWrapperDto {
+    private UserDto updatedUserFields;
     private UserDto user;
-    private String repeatPassword;
 }

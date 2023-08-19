@@ -1,7 +1,7 @@
 package by.teachmeskills.sneakersshopwebserviceexam.dto.converters;
 
 import by.teachmeskills.sneakersshopwebserviceexam.domain.Image;
-import by.teachmeskills.sneakersshopwebserviceexam.dto.ImageDto;
+import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.ImageDto;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 

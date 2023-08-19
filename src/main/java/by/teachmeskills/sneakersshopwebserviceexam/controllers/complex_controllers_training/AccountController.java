@@ -1,13 +1,13 @@
-package by.teachmeskills.sneakersshopwebserviceexam.controllers;
+package by.teachmeskills.sneakersshopwebserviceexam.controllers.complex_controllers_training;
 
-import by.teachmeskills.sneakersshopwebserviceexam.dto.UpdateUserRequestWrapperDto;
-import by.teachmeskills.sneakersshopwebserviceexam.dto.UserDto;
+import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.UpdateUserRequestWrapperDto;
+import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
 import by.teachmeskills.sneakersshopwebserviceexam.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +21,7 @@ public class AccountController {
     public AccountController(UserService userService) {
         this.userService = userService;
     }
+
     /*
         Передаю конкретно два объекта, так как не предполагается, что в updatedUserFields будет id(она не передается с формы),
         по которому будет делаться обновление в базе. Для этого нужна и сущность, которую обновлять.
@@ -37,9 +38,10 @@ public class AccountController {
         данных, так и хранилища по типу memcached. Например, в бд можно хранить сессию в таблице, где первичным ключом
         является значение хеш функции от идентификатора сессии. Однако более быстрым вариантом является хранение
         сессий прямо в оперативной памяти(memcached).
-        Здесь и вдальнейшем параметры сессии передаются прямо в RequestBody
+
+        Здесь и дальше параметры сессии передаются прямо в RequestBody, а также возвращаются в ответе для наглядности
      */
-    @PostMapping("/update")
+    @PutMapping("/update")
     public ResponseEntity<UserDto> updateAccountData(@RequestBody UpdateUserRequestWrapperDto updateUserRequestWrapperDto) throws EntityOperationException {
         return new ResponseEntity<>(userService.updateAccountData(updateUserRequestWrapperDto.getUpdatedUserFields(), updateUserRequestWrapperDto.getUser()), HttpStatus.OK);
     }

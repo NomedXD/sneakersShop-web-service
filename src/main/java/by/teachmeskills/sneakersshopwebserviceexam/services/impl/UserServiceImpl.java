@@ -1,13 +1,12 @@
 package by.teachmeskills.sneakersshopwebserviceexam.services.impl;
 
-import by.teachmeskills.sneakersshopwebserviceexam.domain.Category;
 import by.teachmeskills.sneakersshopwebserviceexam.domain.User;
-import by.teachmeskills.sneakersshopwebserviceexam.dto.LoginResponseWrapperDto;
-import by.teachmeskills.sneakersshopwebserviceexam.dto.RegistrationResponseWrapperDto;
-import by.teachmeskills.sneakersshopwebserviceexam.dto.UserDto;
+import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.CategoryDto;
+import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.LoginResponseWrapperDto;
+import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.RegistrationResponseWrapperDto;
+import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.converters.CategoryConverter;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.converters.UserConverter;
-import by.teachmeskills.sneakersshopwebserviceexam.enums.PagesPathEnum;
 import by.teachmeskills.sneakersshopwebserviceexam.enums.RequestParamsEnum;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.NoSuchUserException;
@@ -19,8 +18,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.ModelMap;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -119,14 +116,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ModelAndView checkIfLoggedInUser(User user) throws EntityOperationException {
-        ModelMap model = new ModelMap();
-        if (user != null) {
-            List<Category> categoriesList = categoryService.read();
-            model.addAttribute(RequestParamsEnum.CATEGORIES.getValue(), categoriesList);
-            return new ModelAndView(PagesPathEnum.SHOP_PAGE.getPath(), model);
+    public ResponseEntity<List<CategoryDto>> checkIfLoggedInUser(UserDto userDto) throws EntityOperationException {
+        if (userDto != null) {
+            return new ResponseEntity<>(categoryService.read().stream().map(categoryConverter::toDto).toList(), HttpStatus.OK);
         } else {
-            return new ModelAndView(PagesPathEnum.LOG_IN_PAGE.getPath(), model);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 

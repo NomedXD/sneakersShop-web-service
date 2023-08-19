@@ -1,5 +1,6 @@
-package by.teachmeskills.sneakersshopwebserviceexam.dto;
+package by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto;
 
+import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderDto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
