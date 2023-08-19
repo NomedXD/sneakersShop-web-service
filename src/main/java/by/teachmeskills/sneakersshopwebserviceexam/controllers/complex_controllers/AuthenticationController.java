@@ -1,4 +1,4 @@
-package by.teachmeskills.sneakersshopwebserviceexam.controllers.complex_controllers_training;
+package by.teachmeskills.sneakersshopwebserviceexam.controllers.complex_controllers;
 
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.LoginResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;

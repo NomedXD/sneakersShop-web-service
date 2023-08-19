@@ -1,4 +1,4 @@
-package by.teachmeskills.sneakersshopwebserviceexam.controllers.complex_controllers_training;
+package by.teachmeskills.sneakersshopwebserviceexam.controllers.complex_controllers;
 
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.UpdateUserRequestWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
@@ -42,7 +42,7 @@ public class AccountController {
         Здесь и дальше параметры сессии передаются прямо в RequestBody, а также возвращаются в ответе для наглядности
      */
     @PutMapping("/update")
-    public ResponseEntity<UserDto> updateAccountData(@RequestBody UpdateUserRequestWrapperDto updateUserRequestWrapperDto) throws EntityOperationException {
-        return new ResponseEntity<>(userService.updateAccountData(updateUserRequestWrapperDto.getUpdatedUserFields(), updateUserRequestWrapperDto.getUser()), HttpStatus.OK);
+    public ResponseEntity<UserDto> updateAccountData(@RequestBody UpdateUserRequestWrapperDto requestBody) throws EntityOperationException {
+        return new ResponseEntity<>(userService.updateAccountData(requestBody.getUpdatedUserFields(), requestBody.getUser()), HttpStatus.OK);
     }
 }

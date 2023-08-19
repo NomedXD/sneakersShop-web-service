@@ -5,7 +5,6 @@ import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.CategoryDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.LoginResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.RegistrationResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
-import by.teachmeskills.sneakersshopwebserviceexam.dto.converters.CategoryConverter;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.converters.UserConverter;
 import by.teachmeskills.sneakersshopwebserviceexam.enums.RequestParamsEnum;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
@@ -29,30 +28,27 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final CategoryService categoryService;
     private final UserConverter userConverter;
-    private final CategoryConverter categoryConverter;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, CategoryService categoryService, @Lazy UserConverter userConverter,
-                           @Lazy CategoryConverter categoryConverter) {
+    public UserServiceImpl(UserRepository userRepository, CategoryService categoryService, @Lazy UserConverter userConverter) {
         this.userRepository = userRepository;
         this.categoryService = categoryService;
         this.userConverter = userConverter;
-        this.categoryConverter = categoryConverter;
     }
 
     @Override
-    public User create(User entity) throws EntityOperationException {
-        return userRepository.create(entity);
+    public UserDto create(UserDto userDto) throws EntityOperationException {
+        return userConverter.toDto(userRepository.create(userConverter.fromDto(userDto)));
     }
 
     @Override
-    public List<User> read() throws EntityOperationException {
-        return userRepository.read();
+    public List<UserDto> read() throws EntityOperationException {
+        return userRepository.read().stream().map(userConverter::toDto).toList();
     }
 
     @Override
-    public User update(User entity) throws EntityOperationException {
-        return userRepository.update(entity);
+    public UserDto update(UserDto userDto) throws EntityOperationException {
+        return userConverter.toDto(userRepository.update(userConverter.fromDto(userDto)));
     }
 
     @Override
@@ -75,7 +71,7 @@ public class UserServiceImpl implements UserService {
                 flatNumber(params.get(RequestParamsEnum.FLAT_NUMBER.getValue())).build();
         User dbUser = userConverter.fromDto(updatedUserFields);
         dbUser.setOrders(userRepository.getUserOrders(userDto.getId()));
-        userDto = userConverter.toDto(update(dbUser));
+        userDto = userConverter.toDto(userRepository.update(dbUser));
         return userDto;
     }
 
@@ -98,7 +94,7 @@ public class UserServiceImpl implements UserService {
         if (loggedUser != null) {
             // Здесь было сохранение пользователя в сессию //
             return new ResponseEntity<>(new LoginResponseWrapperDto(userConverter.toDto(loggedUser),
-                    categoryService.read().stream().map(categoryConverter::toDto).toList()), HttpStatus.OK);
+                    categoryService.read()), HttpStatus.OK);
         } else {
             throw new NoSuchUserException("Wrong email or password. Try again");
         }
@@ -112,13 +108,13 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.create(User.builder().mail(userDto.getMail()).password(userDto.getPassword()).name(userDto.getName()).
                 surname(userDto.getSurname()).date(userDto.getDate()).currentBalance(0f).orders(new ArrayList<>()).build());
         return new ResponseEntity<>(new RegistrationResponseWrapperDto(userConverter.toDto(user),
-                categoryService.read().stream().map(categoryConverter::toDto).toList()), HttpStatus.OK);
+                categoryService.read()), HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<List<CategoryDto>> checkIfLoggedInUser(UserDto userDto) throws EntityOperationException {
         if (userDto != null) {
-            return new ResponseEntity<>(categoryService.read().stream().map(categoryConverter::toDto).toList(), HttpStatus.OK);
+            return new ResponseEntity<>(categoryService.read(), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

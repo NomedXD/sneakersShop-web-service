@@ -4,12 +4,14 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 @Data
+@SuperBuilder
 public class Cart {
     /*
      *  Annotated for the future admin account in shop

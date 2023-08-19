@@ -1,0 +1,4 @@
+Все контроллеры в данном пакете протестированы и являются полностью рабочими.
+Все параметры сессии передаются внутри RequestBody, а также возвращаются в ответ для наглядности, в basic_controllers тоже(Cart)
+Методы create, update и login для пользователя являются методами классов RegistrationController, AccountController и
+    AuthenticationController соответственно. Текущий пользователь передается внутри RequestBody помимо обновленного.

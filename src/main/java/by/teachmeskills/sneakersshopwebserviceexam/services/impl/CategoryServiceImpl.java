@@ -21,6 +21,7 @@ public class CategoryServiceImpl implements CategoryService {
         this.categoryConverter = categoryConverter;
     }
 
+    // Basic controllers reference
     @Override
     public CategoryDto create(CategoryDto categoryDto) throws EntityOperationException {
         return categoryConverter.toDto(categoryRepository.create(categoryConverter.fromDto(categoryDto)));
