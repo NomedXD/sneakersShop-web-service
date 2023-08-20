@@ -29,7 +29,7 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     @Override
     public Category create(Category entity) throws EntityOperationException {
         try {
-            entityManager.persist(entity);
+            entity = entityManager.merge(entity);
         } catch (PersistenceException e) {
             logger.warn("SQLException while creating category. Most likely request is wrong. Full message - " + e.getMessage());
             throw new EntityOperationException("Unexpected error on the site. How do you get here?\nCheck us later");

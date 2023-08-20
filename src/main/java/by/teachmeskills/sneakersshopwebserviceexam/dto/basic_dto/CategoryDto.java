@@ -33,7 +33,6 @@ public class CategoryDto {
     @Size(max = 45, message = "Out of bounds categoryDto some text")
     private String sometext;
 
-    @NotNull(message = "Product list field in categoryDto is null")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private List<ProductDto> productList;

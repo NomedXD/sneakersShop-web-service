@@ -1,17 +1,14 @@
 package by.teachmeskills.sneakersshopwebserviceexam.dto.converters;
 
 import by.teachmeskills.sneakersshopwebserviceexam.domain.Cart;
-import by.teachmeskills.sneakersshopwebserviceexam.domain.Order;
 import by.teachmeskills.sneakersshopwebserviceexam.domain.Product;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.CartDto;
-import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.ProductDto;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 

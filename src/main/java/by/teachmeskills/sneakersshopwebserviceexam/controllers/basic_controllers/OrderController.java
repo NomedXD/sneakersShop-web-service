@@ -1,11 +1,12 @@
 package by.teachmeskills.sneakersshopwebserviceexam.controllers.basic_controllers;
 
-import by.teachmeskills.sneakersshopwebserviceexam.domain.Order;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderDto;
-import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.ProductDto;
+import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
 import by.teachmeskills.sneakersshopwebserviceexam.services.OrderService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -28,8 +30,12 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<OrderDto> createOrder(@RequestBody OrderDto orderDto) {
-        return new ResponseEntity<>(orderService.create(orderDto), HttpStatus.CREATED);
+    public ResponseEntity<OrderDto> createOrder(@Valid @RequestBody OrderDto orderDto, BindingResult result) {
+        if (!result.hasErrors()) {
+            return new ResponseEntity<>(orderService.create(orderDto), HttpStatus.CREATED);
+        } else {
+            throw new ValidationException(Objects.requireNonNull(result.getFieldError()).getDefaultMessage());
+        }
     }
 
     @GetMapping("/all")
@@ -38,12 +44,16 @@ public class OrderController {
     }
 
     @PutMapping
-    public ResponseEntity<OrderDto> updateProduct(@RequestBody OrderDto orderDto) {
-        return new ResponseEntity<>(orderService.update(orderDto), HttpStatus.OK);
+    public ResponseEntity<OrderDto> updateOrder(@Valid @RequestBody OrderDto orderDto, BindingResult result) {
+        if (!result.hasErrors()) {
+            return new ResponseEntity<>(orderService.update(orderDto), HttpStatus.OK);
+        } else {
+            throw new ValidationException(Objects.requireNonNull(result.getFieldError()).getDefaultMessage());
+        }
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteProduct(@PathVariable Integer id) {
+    @DeleteMapping("/remove/{id}")
+    public void deleteOrder(@PathVariable Integer id) {
         orderService.delete(id);
     }
 

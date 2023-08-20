@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class ImageConverter {
     public ImageDto toDto(Image image) {
-        return  ImageDto.builder().id(image.getId()).path(image.getPath()).build();
+        return ImageDto.builder().id(image.getId()).path(image.getPath()).build();
     }
 
-    public Image fromDto(ImageDto imageDto){
+    public Image fromDto(ImageDto imageDto) {
         return Image.builder().id(imageDto.getId()).path(imageDto.getPath()).build();
     }
 }

@@ -32,26 +32,34 @@ public class CartController {
     }
 
     @DeleteMapping("/remove/{productId}")
-    public ResponseEntity<CartDto> deleteProductFromCart(@PathVariable(name = "productId") Integer productId,
-                                                         @Valid @RequestBody CartDto cartDto, BindingResult result) {
-        if(!result.hasErrors()) {
+    public ResponseEntity<CartDto> deleteProductFromCart(@Valid @RequestBody CartDto cartDto, BindingResult result,
+                                                         @PathVariable(name = "productId") Integer productId) {
+        if (!result.hasErrors()) {
             cartDto.removeProduct(productId);
             return new ResponseEntity<>(cartDto, HttpStatus.OK);
         } else {
-            throw new ValidationException(Objects.requireNonNull(result.getFieldError()).getField());
+            throw new ValidationException(Objects.requireNonNull(result.getFieldError()).getDefaultMessage());
         }
     }
 
-    @PutMapping("/add/{productId}")
-    public ResponseEntity<CartDto> addProductToCart(@PathVariable(name = "productId") Integer productId,
-                                                    @RequestBody CartDto cartDto) throws EntityOperationException {
-        cartDto.addProduct(productService.getProductById(productId));
-        return new ResponseEntity<>(cartDto, HttpStatus.OK);
+    @PutMapping("/{productId}")
+    public ResponseEntity<CartDto> addProductToCart(@Valid @RequestBody CartDto cartDto, BindingResult result,
+                                                    @PathVariable(name = "productId") Integer productId) throws EntityOperationException {
+        if (!result.hasErrors()) {
+            cartDto.addProduct(productService.getProductById(productId));
+            return new ResponseEntity<>(cartDto, HttpStatus.OK);
+        } else {
+            throw new ValidationException(Objects.requireNonNull(result.getFieldError()).getDefaultMessage());
+        }
     }
 
     @PostMapping("/checkout")
-    public ResponseEntity<CheckoutRequestResponseWrapperDto> submitCheckout(@RequestBody CheckoutRequestResponseWrapperDto requestBody) throws EntityOperationException {
-        return orderService.applyOrder(requestBody.getOrder(), requestBody.getCart(), requestBody.getUser());
+    public ResponseEntity<CheckoutRequestResponseWrapperDto> submitCheckout(@Valid @RequestBody CheckoutRequestResponseWrapperDto requestBody, BindingResult result) throws EntityOperationException {
+        if (!result.hasErrors()) {
+            return orderService.applyOrder(requestBody.getOrder(), requestBody.getCart(), requestBody.getUser());
+        } else {
+            throw new ValidationException(Objects.requireNonNull(result.getFieldError()).getDefaultMessage());
+        }
     }
     /*
         @PostMapping("/apply_quantity")

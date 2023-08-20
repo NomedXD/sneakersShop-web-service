@@ -36,7 +36,7 @@ public class OrderDto {
     private Integer userId;
 
     @NotNull(message = "Products list field in orderDto is null")
-    @Size(max = 100, message = "Out of bounds orderDto product list")
+    @Size(min = 1, max = 100, message = "Out of bounds orderDto product list")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<ProductDto> productList;

@@ -31,12 +31,11 @@ public class OrderRepositoryImpl implements OrderRepository {
     @Override
     public Order create(Order entity) throws EntityOperationException {
         try {
-            entityManager.persist(entity);
+            return entityManager.merge(entity);
         } catch (PersistenceException e) {
             logger.warn("SQLException while creating order. Most likely request is wrong. Full message - " + e.getMessage());
             throw new EntityOperationException("Unexpected error on the site. How do you get here?\nCheck us later");
         }
-        return entity;
     }
 
     @Override

@@ -31,12 +31,11 @@ public class ProductRepositoryImpl implements ProductRepository {
     @Override
     public Product create(Product entity) throws EntityOperationException {
         try {
-            entityManager.persist(entity);
+            return entityManager.merge(entity);
         } catch (PersistenceException e) {
             logger.warn("SQLException while creating product. Most likely request is wrong. Full message - " + e.getMessage());
             throw new EntityOperationException("Unexpected error on the site. How do you get here?\nCheck us later");
         }
-        return entity;
     }
 
     @Override
@@ -88,8 +87,7 @@ public class ProductRepositoryImpl implements ProductRepository {
     @Override
     public List<Product> getOrderProducts(Integer orderId) throws EntityOperationException {
         try {
-            return entityManager.createQuery("select o.productList from Order o where o.id =: orderId", Product.class).
-                    setParameter("orderId", orderId).getResultList();
+            return entityManager.find(Order.class, orderId).getProductList();
         } catch (PersistenceException e) {
             logger.warn("SQLException while getting products by order id. Most likely request is wrong. Full message - " + e.getMessage());
             throw new EntityOperationException("Unexpected error on the site. How do you get here?\nCheck us later");

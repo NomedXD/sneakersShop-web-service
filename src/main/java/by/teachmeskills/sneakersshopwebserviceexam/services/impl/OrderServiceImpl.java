@@ -91,7 +91,7 @@ public class OrderServiceImpl implements OrderService {
         order.setDate(LocalDate.now());
         order.setPrice(cart.getTotalPrice());
         String ccNumber = order.getCreditCardNumber();
-        order.setCreditCardNumber(ccNumber.substring(0, 5).concat(" **** **** ").concat(ccNumber.substring(12, 16)));
+        order.setCreditCardNumber(ccNumber.substring(0, 4).concat(" **** **** ").concat(ccNumber.substring(12, 16)));
         order.setProductList(cart.getProducts());
     }
 }
