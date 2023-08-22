@@ -3,6 +3,13 @@ package by.teachmeskills.sneakersshopwebserviceexam.controllers.basic_controller
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.ProductDto;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
 import by.teachmeskills.sneakersshopwebserviceexam.services.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@Tag(name = "product", description = "Product Endpoints")
 @RestController
 @RequestMapping("/product")
 public class ProductController {
@@ -31,6 +39,25 @@ public class ProductController {
         this.productService = productService;
     }
 
+    @Operation(
+            summary = "Create product",
+            description = "Create product",
+            tags = {"product"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Product was created",
+                    content = @Content(schema = @Schema(implementation = ProductDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Product object validation error - server error"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Database error - server error"
+            )
+    })
     @PostMapping
     public ResponseEntity<ProductDto> createProduct(@Valid @RequestBody ProductDto productDto, BindingResult result) {
         if (!result.hasErrors()) {
@@ -40,11 +67,45 @@ public class ProductController {
         }
     }
 
+    @Operation(
+            summary = "Get all products",
+            description = "Get all products",
+            tags = {"product"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Products were found",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Database error - server error"
+            )
+    })
     @GetMapping("/all")
     public ResponseEntity<List<ProductDto>> getAllProducts() {
         return new ResponseEntity<>(productService.read(), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Update product",
+            description = "Update product",
+            tags = {"product"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Product was updated",
+                    content = @Content(schema = @Schema(implementation = ProductDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Product object validation error - server error"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Database error - server error"
+            )
+    })
     @PutMapping
     public ResponseEntity<ProductDto> updateProduct(@Valid @RequestBody ProductDto productDto, BindingResult result) {
         if (!result.hasErrors()) {
@@ -54,11 +115,44 @@ public class ProductController {
         }
     }
 
+    @Operation(
+            summary = "Remove product",
+            description = "Remove product by it's id",
+            tags = {"product"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Product was deleted"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Database error - server error"
+            )
+    })
     @DeleteMapping("/remove/{id}")
     public void deleteProduct(@PathVariable Integer id) {
         productService.delete(id);
     }
 
+    @Operation(
+            summary = "Get product",
+            description = "Get product by it's id",
+            tags = {"product"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Product were found",
+                    content = @Content(schema = @Schema(implementation = ProductDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Product were not found"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Database error - server error"
+            )
+    })
     @GetMapping("/{id}")
     public ResponseEntity<ProductDto> getProductById(@PathVariable Integer id) {
         return Optional.ofNullable(productService.getProductById(id))
@@ -66,11 +160,41 @@ public class ProductController {
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @Operation(
+            summary = "Get products",
+            description = "Get products by category id",
+            tags = {"product"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Products were found",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Database error - server error"
+            )
+    })
     @GetMapping("/allByCategory/{id}")
     public ResponseEntity<List<ProductDto>> getCategoryProducts(@PathVariable Integer id) {
         return new ResponseEntity<>(productService.getCategoryProducts(id), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Get products",
+            description = "Get products by order id",
+            tags = {"product"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Products were found",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Database error - server error"
+            )
+    })
     @GetMapping("/allByOrder/{id}")
     public ResponseEntity<List<ProductDto>> getOrderProducts(@PathVariable Integer id) {
         return new ResponseEntity<>(productService.getOrderProducts(id), HttpStatus.OK);

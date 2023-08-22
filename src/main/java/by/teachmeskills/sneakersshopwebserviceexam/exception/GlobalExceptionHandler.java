@@ -21,12 +21,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoSuchUserException.class)
     public ResponseEntity<String> handleNoSuchUserException(NoSuchUserException exception) {
-        return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(UserAlreadyExistException.class)
     public ResponseEntity<String> handleUserAlreadyExistException(UserAlreadyExistException exception) {
-        return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(EntityOperationException.class)

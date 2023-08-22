@@ -5,9 +5,14 @@ import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
 import by.teachmeskills.sneakersshopwebserviceexam.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Objects;
 
+@Tag(name = "login", description = "Authentication Endpoints")
 @RestController
 @RequestMapping("/login")
 public class AuthenticationController {
@@ -27,6 +33,29 @@ public class AuthenticationController {
         this.userService = userService;
     }
 
+    @Operation(
+            summary = "Authenticate user",
+            description = "Authenticate user by form",
+            tags = {"login"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successful login",
+                    content = @Content(schema = @Schema(implementation = UserDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "User object validation error - server error"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "User does not exist"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Database error - server error"
+            )
+    })
     @PostMapping
     public ResponseEntity<LoginResponseWrapperDto> logIn(@Valid @RequestBody UserDto userDto, BindingResult result) throws EntityOperationException {
         if (!result.hasErrors()) {

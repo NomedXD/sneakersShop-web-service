@@ -3,6 +3,13 @@ package by.teachmeskills.sneakersshopwebserviceexam.controllers.basic_controller
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderDto;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
 import by.teachmeskills.sneakersshopwebserviceexam.services.OrderService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +27,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@Tag(name = "order", description = "Order Endpoints")
 @RestController
 @RequestMapping("/order")
 public class OrderController {
@@ -29,6 +37,25 @@ public class OrderController {
         this.orderService = orderService;
     }
 
+    @Operation(
+            summary = "Create order",
+            description = "Create order",
+            tags = {"order"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Order was created",
+                    content = @Content(schema = @Schema(implementation = OrderDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Order object validation error - server error"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Database error - server error"
+            )
+    })
     @PostMapping
     public ResponseEntity<OrderDto> createOrder(@Valid @RequestBody OrderDto orderDto, BindingResult result) {
         if (!result.hasErrors()) {
@@ -38,11 +65,45 @@ public class OrderController {
         }
     }
 
+    @Operation(
+            summary = "Get all orders",
+            description = "Get all orders",
+            tags = {"order"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Orders were found",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = OrderDto.class)))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Database error - server error"
+            )
+    })
     @GetMapping("/all")
     public ResponseEntity<List<OrderDto>> getAllOrders() {
         return new ResponseEntity<>(orderService.read(), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Update order",
+            description = "Update order",
+            tags = {"order"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Order was updated",
+                    content = @Content(schema = @Schema(implementation = OrderDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Order object validation error - server error"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Database error - server error"
+            )
+    })
     @PutMapping
     public ResponseEntity<OrderDto> updateOrder(@Valid @RequestBody OrderDto orderDto, BindingResult result) {
         if (!result.hasErrors()) {
@@ -52,11 +113,44 @@ public class OrderController {
         }
     }
 
+    @Operation(
+            summary = "Remove order",
+            description = "Remove order by it's id",
+            tags = {"order"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Order was deleted"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Database error - server error"
+            )
+    })
     @DeleteMapping("/remove/{id}")
     public void deleteOrder(@PathVariable Integer id) {
         orderService.delete(id);
     }
 
+    @Operation(
+            summary = "Get order",
+            description = "Get order by it's id",
+            tags = {"order"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Order were found",
+                    content = @Content(schema = @Schema(implementation = OrderDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Order were not found"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Database error - server error"
+            )
+    })
     @GetMapping("/{id}")
     public ResponseEntity<OrderDto> getOrderById(@PathVariable Integer id) {
         return Optional.ofNullable(orderService.getOrderById(id))
@@ -64,6 +158,21 @@ public class OrderController {
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @Operation(
+            summary = "Get orders",
+            description = "Get orders by user id",
+            tags = {"order"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Order were found",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = OrderDto.class)))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Database error - server error"
+            )
+    })
     @GetMapping("/allByUser/{id}")
     public ResponseEntity<List<OrderDto>> getUserOrders(@PathVariable Integer id) {
         return new ResponseEntity<>(orderService.getUserOrders(id), HttpStatus.OK);
