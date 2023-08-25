@@ -42,5 +42,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handValidationException(ValidationException exception) {
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(CSVExportException.class)
+    public ResponseEntity<String> handleCSVExportException(CSVExportException exception) {
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CSVImportException.class)
+    public ResponseEntity<String> handleCSVImportException(CSVImportException exception) {
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 }
 

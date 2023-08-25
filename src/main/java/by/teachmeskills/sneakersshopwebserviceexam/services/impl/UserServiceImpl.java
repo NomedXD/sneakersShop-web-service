@@ -1,38 +1,63 @@
 package by.teachmeskills.sneakersshopwebserviceexam.services.impl;
 
+import by.teachmeskills.sneakersshopwebserviceexam.domain.Order;
 import by.teachmeskills.sneakersshopwebserviceexam.domain.User;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.CategoryDto;
+import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.LoginResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.RegistrationResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.converters.UserConverter;
+import by.teachmeskills.sneakersshopwebserviceexam.enums.EshopConstants;
 import by.teachmeskills.sneakersshopwebserviceexam.enums.RequestParamsEnum;
+import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVExportException;
+import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVImportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.NoSuchUserException;
 import by.teachmeskills.sneakersshopwebserviceexam.repositories.UserRepository;
 import by.teachmeskills.sneakersshopwebserviceexam.services.CategoryService;
+import by.teachmeskills.sneakersshopwebserviceexam.services.OrderService;
 import by.teachmeskills.sneakersshopwebserviceexam.services.UserService;
+import com.opencsv.CSVWriter;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.swing.filechooser.FileSystemView;
+import java.io.BufferedReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final CategoryService categoryService;
+    private final OrderService orderService;
     private final UserConverter userConverter;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, CategoryService categoryService, @Lazy UserConverter userConverter) {
+    public UserServiceImpl(UserRepository userRepository, CategoryService categoryService, @Lazy OrderService orderService, @Lazy UserConverter userConverter) {
         this.userRepository = userRepository;
         this.categoryService = categoryService;
+        this.orderService = orderService;
         this.userConverter = userConverter;
     }
 
@@ -123,5 +148,49 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserById(Integer id) throws EntityOperationException {
         return userRepository.getUserById(id);
+    }
+
+    @Override
+    public ResponseEntity<String> exportUserOrders(Integer userId) throws CSVExportException {
+        writeCsv(userId);
+        return new ResponseEntity<>(EshopConstants.successfulExportMessage, HttpStatus.OK);
+    }
+
+    private void writeCsv(Integer userId) throws CSVExportException {
+        try (Writer writer = new FileWriter(FileSystemView.getFileSystemView().getHomeDirectory().getAbsolutePath() + "/orders.csv")) {
+            StatefulBeanToCsv<OrderDto> sbc = new StatefulBeanToCsvBuilder<OrderDto>(writer)
+                    .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+                    .build();
+            sbc.write(userConverter.toDto(userRepository.getUserById(userId)).getOrders());
+        } catch (IOException | CsvRequiredFieldEmptyException | CsvDataTypeMismatchException e) {
+            throw new CSVExportException(EshopConstants.errorOrdersExportMessage);
+        }
+    }
+
+    @Override
+    public ResponseEntity<List<OrderDto>> importUserOrders(MultipartFile file) throws CSVImportException {
+        List<OrderDto> orderDtoList = parseCsv(file);
+        if (Optional.ofNullable(orderDtoList).isPresent()) {
+            orderDtoList.forEach(orderService::create);
+            return new ResponseEntity<>(orderDtoList, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
+    }
+
+    private List<OrderDto> parseCsv(MultipartFile file) throws CSVImportException {
+        if (Optional.ofNullable(file).isPresent()) {
+            try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+                CsvToBean<OrderDto> csvToBean = new CsvToBeanBuilder<OrderDto>(reader)
+                        .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+                        .withType(OrderDto.class)
+                        .withIgnoreLeadingWhiteSpace(true)
+                        .build();
+                return csvToBean.parse();
+            } catch (IOException e) {
+                throw new CSVImportException(EshopConstants.errorOrdersImportMessage);
+            }
+        } else {
+            throw new CSVImportException(EshopConstants.errorFileNullMessage);
+        }
     }
 }

@@ -1,8 +1,12 @@
 package by.teachmeskills.sneakersshopwebserviceexam.controllers.basic_controllers;
 
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderDto;
+import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
+import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVExportException;
+import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVImportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
 import by.teachmeskills.sneakersshopwebserviceexam.services.OrderService;
+import by.teachmeskills.sneakersshopwebserviceexam.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,7 +25,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Objects;
@@ -32,9 +38,11 @@ import java.util.Optional;
 @RequestMapping("/order")
 public class OrderController {
     private final OrderService orderService;
+    private final UserService userService;
 
-    public OrderController(OrderService orderService) {
+    public OrderController(OrderService orderService, UserService userService) {
         this.orderService = orderService;
+        this.userService = userService;
     }
 
     @Operation(
@@ -176,5 +184,15 @@ public class OrderController {
     @GetMapping("/allByUser/{id}")
     public ResponseEntity<List<OrderDto>> getUserOrders(@PathVariable Integer id) {
         return new ResponseEntity<>(orderService.getUserOrders(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/export/{userId}")
+    public ResponseEntity<String> exportUserOrders(@PathVariable Integer userId) throws CSVExportException {
+        return userService.exportUserOrders(userId);
+    }
+
+    @PostMapping("/import")
+    public ResponseEntity<List<OrderDto>> exportUserOrders(@RequestParam("file") MultipartFile file) throws CSVImportException {
+        return userService.importUserOrders(file);
     }
 }
