@@ -1,9 +1,9 @@
 package by.teachmeskills.sneakersshopwebserviceexam.services.impl;
 
-import by.teachmeskills.sneakersshopwebserviceexam.domain.Order;
 import by.teachmeskills.sneakersshopwebserviceexam.domain.User;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.CategoryDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderDto;
+import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.ProductDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.LoginResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.RegistrationResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
@@ -32,13 +32,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.swing.filechooser.FileSystemView;
 import java.io.BufferedReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -157,11 +157,20 @@ public class UserServiceImpl implements UserService {
     }
 
     private void writeCsv(Integer userId) throws CSVExportException {
-        try (Writer writer = new FileWriter(FileSystemView.getFileSystemView().getHomeDirectory().getAbsolutePath() + "/orders.csv")) {
-            StatefulBeanToCsv<OrderDto> sbc = new StatefulBeanToCsvBuilder<OrderDto>(writer)
+        List<OrderDto> orderDtoList = userConverter.toDto(userRepository.getUserById(userId)).getOrders();
+        try (Writer ordersWriter = Files.newBufferedWriter(Paths.get("src/main/resources/user_" + userId + "_orders.csv"))) {
+            StatefulBeanToCsv<OrderDto> ordersSbc = new StatefulBeanToCsvBuilder<OrderDto>(ordersWriter)
                     .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
                     .build();
-            sbc.write(userConverter.toDto(userRepository.getUserById(userId)).getOrders());
+            ordersSbc.write(orderDtoList);
+            for (OrderDto orderDto: orderDtoList) {
+                try (Writer productsWriter = Files.newBufferedWriter(Paths.get("src/main/resources/user_" + userId + "_order_" + orderDto.getId() + "_products.csv"))) {
+                    StatefulBeanToCsv<ProductDto> productsSbc = new StatefulBeanToCsvBuilder<ProductDto>(productsWriter)
+                            .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+                            .build();
+                    productsSbc.write(orderDto.getProductList());
+                }
+            }
         } catch (IOException | CsvRequiredFieldEmptyException | CsvDataTypeMismatchException e) {
             throw new CSVExportException(EshopConstants.errorOrdersExportMessage);
         }
@@ -171,7 +180,10 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<List<OrderDto>> importUserOrders(MultipartFile file) throws CSVImportException {
         List<OrderDto> orderDtoList = parseCsv(file);
         if (Optional.ofNullable(orderDtoList).isPresent()) {
-            orderDtoList.forEach(orderService::create);
+            orderDtoList.forEach(orderDto -> {
+                orderDto.setId(0); // Чтобы создавался новый заказ, а не обновлялся этот же, если что - удалить
+                orderDto.setId(orderService.create(orderDto).getId());
+            });
             return new ResponseEntity<>(orderDtoList, HttpStatus.OK);
         }
         return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
@@ -179,13 +191,24 @@ public class UserServiceImpl implements UserService {
 
     private List<OrderDto> parseCsv(MultipartFile file) throws CSVImportException {
         if (Optional.ofNullable(file).isPresent()) {
-            try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
-                CsvToBean<OrderDto> csvToBean = new CsvToBeanBuilder<OrderDto>(reader)
+            try (Reader ordersReader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+                CsvToBean<OrderDto> ordersCtb = new CsvToBeanBuilder<OrderDto>(ordersReader)
                         .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
                         .withType(OrderDto.class)
                         .withIgnoreLeadingWhiteSpace(true)
                         .build();
-                return csvToBean.parse();
+                List<OrderDto> orderDtoList = ordersCtb.parse();
+                for (OrderDto orderDto: orderDtoList) {
+                    try(Reader productsReader = Files.newBufferedReader(Paths.get("src/main/resources/user_" + orderDto.getUserId() + "_order_" + orderDto.getId() + "_products.csv"))) {
+                        CsvToBean<ProductDto> productsCtb = new CsvToBeanBuilder<ProductDto>(productsReader)
+                                .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+                                .withType(ProductDto.class)
+                                .withIgnoreLeadingWhiteSpace(true)
+                                .build();
+                        orderDto.setProductList(productsCtb.parse());
+                    }
+                }
+                return orderDtoList;
             } catch (IOException e) {
                 throw new CSVImportException(EshopConstants.errorOrdersImportMessage);
             }

@@ -1,7 +1,6 @@
 package by.teachmeskills.sneakersshopwebserviceexam.controllers.basic_controllers;
 
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderDto;
-import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVExportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVImportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
@@ -186,13 +185,41 @@ public class OrderController {
         return new ResponseEntity<>(orderService.getUserOrders(id), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Export orders",
+            description = "Export user orders to csv file by user id. Products export is separated to another file",
+            tags = {"order"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Orders were exported"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "CSVExportException was thrown - server error"
+            )
+    })
     @GetMapping("/export/{userId}")
     public ResponseEntity<String> exportUserOrders(@PathVariable Integer userId) throws CSVExportException {
         return userService.exportUserOrders(userId);
     }
 
+    @Operation(
+            summary = "Import orders",
+            description = "Import user orders from csv file. Products import executes from another file",
+            tags = {"order"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Orders were imported and created in database"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "CSVImportException was thrown - server error"
+            )
+    })
     @PostMapping("/import")
-    public ResponseEntity<List<OrderDto>> exportUserOrders(@RequestParam("file") MultipartFile file) throws CSVImportException {
+    public ResponseEntity<List<OrderDto>> importUserOrders(@RequestParam("file") MultipartFile file) throws CSVImportException {
         return userService.importUserOrders(file);
     }
 }

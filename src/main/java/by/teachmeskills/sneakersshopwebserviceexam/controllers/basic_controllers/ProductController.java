@@ -1,6 +1,8 @@
 package by.teachmeskills.sneakersshopwebserviceexam.controllers.basic_controllers;
 
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.ProductDto;
+import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVExportException;
+import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVImportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
 import by.teachmeskills.sneakersshopwebserviceexam.services.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,7 +24,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Objects;
@@ -198,5 +202,43 @@ public class ProductController {
     @GetMapping("/allByOrder/{id}")
     public ResponseEntity<List<ProductDto>> getOrderProducts(@PathVariable Integer id) {
         return new ResponseEntity<>(productService.getOrderProducts(id), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Export products",
+            description = "Export category products to csv file by category id",
+            tags = {"product"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Products were exported"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "CSVExportException was thrown - server error"
+            )
+    })
+    @GetMapping("/export/{categoryId}")
+    public ResponseEntity<String> exportCategoryProducts(@PathVariable Integer categoryId) throws CSVExportException {
+        return productService.exportCategoryProducts(categoryId);
+    }
+
+    @Operation(
+            summary = "Import products",
+            description = "Import category products from csv file",
+            tags = {"product"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Products were imported and created in database"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "CSVImportException was thrown - server error"
+            )
+    })
+    @PostMapping("/import")
+    public ResponseEntity<List<ProductDto>> importCategoryProducts(@RequestParam("file") MultipartFile file) throws CSVImportException {
+        return productService.importCategoryProducts(file);
     }
 }
