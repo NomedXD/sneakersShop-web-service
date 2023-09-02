@@ -16,17 +16,25 @@ import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
@@ -70,14 +78,13 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public ResponseEntity<String> exportCategories() throws CSVExportException {
-        writeCsv();
-        return new ResponseEntity<>(EshopConstants.successfulExportMessage, HttpStatus.OK);
+    public ResponseEntity<Resource> exportCategories() throws CSVExportException {
+        return writeCsv();
     }
 
-    private void writeCsv() throws CSVExportException {
+    private ResponseEntity<Resource> writeCsv() throws CSVExportException {
         List<CategoryDto> categoryDtoList = categoryRepository.read().stream().map(categoryConverter::toDto).toList();
-        try (Writer categoriesWriter = Files.newBufferedWriter(Paths.get("src/main/resources/categories.csv"))) {
+        try (Writer categoriesWriter = Files.newBufferedWriter(Paths.get(EshopConstants.categoriesFilePath))) {
             StatefulBeanToCsv<CategoryDto> productsSbc = new StatefulBeanToCsvBuilder<CategoryDto>(categoriesWriter)
                     .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
                     .build();
@@ -85,6 +92,15 @@ public class CategoryServiceImpl implements CategoryService {
         } catch (IOException | CsvRequiredFieldEmptyException | CsvDataTypeMismatchException e) {
             throw new CSVExportException(EshopConstants.errorCategoriesExportMessage);
         }
+        try {
+            InputStreamResource resource = new InputStreamResource(new FileInputStream(EshopConstants.categoriesFilePath));
+            return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + "categories.csv")
+                    .contentType(MediaType.parseMediaType("application/csv"))
+                    .body(resource);
+        } catch (FileNotFoundException e) {
+            throw new CSVExportException(EshopConstants.errorFileNullMessage);
+        }
+
     }
 
     @Override

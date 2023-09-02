@@ -50,7 +50,7 @@ public class HomeController {
                     description = "User not logged"
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })

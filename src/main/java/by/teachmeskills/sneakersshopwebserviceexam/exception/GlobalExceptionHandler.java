@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
         if (exception.getException() instanceof ConstraintViolationException) {
             return handleUserAlreadyExistException(new UserAlreadyExistException("User with such email already exist"));
         } else {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -11,4 +11,5 @@ public interface EshopConstants {
     String errorProductsImportMessage = "Cannot import products from file";
     String errorCategoriesExportMessage = "Cannot export categories to file";
     String errorCategoriesImportMessage = "Cannot import categories from file";
+    String categoriesFilePath = "src/main/resources/categories.csv";
 }

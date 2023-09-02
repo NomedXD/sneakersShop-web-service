@@ -83,7 +83,7 @@ public class CartController {
                     description = "Cart object validation error - server error"
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })
@@ -113,7 +113,7 @@ public class CartController {
                     description = "Request CheckoutRequestResponseWrapperDto object validation error - server error"
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })

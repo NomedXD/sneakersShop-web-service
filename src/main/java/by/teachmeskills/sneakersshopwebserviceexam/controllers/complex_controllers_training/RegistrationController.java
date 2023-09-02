@@ -52,7 +52,7 @@ public class RegistrationController {
                     description = "User with such credentials already exist"
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })

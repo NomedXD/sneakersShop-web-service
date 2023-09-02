@@ -1,8 +1,7 @@
 package by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto;
 
-import by.teachmeskills.sneakersshopwebserviceexam.utils.DateCsvConverter;
 import com.opencsv.bean.CsvBindByName;
-import com.opencsv.bean.CsvCustomBindByName;
+import com.opencsv.bean.CsvDate;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -33,7 +32,8 @@ public class OrderDto {
     private Float price;
 
     @NotNull(message = "Date field in orderDto is null")
-    @CsvCustomBindByName(converter = DateCsvConverter.class)
+    @CsvDate(value = "yyyy-MM-dd")
+    @CsvBindByName
     private LocalDate date;
 
     @NotNull(message = "User id field in orderDto is null")

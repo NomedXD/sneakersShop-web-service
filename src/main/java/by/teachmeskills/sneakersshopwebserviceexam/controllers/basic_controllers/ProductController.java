@@ -58,7 +58,7 @@ public class ProductController {
                     description = "Product object validation error - server error"
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })
@@ -82,7 +82,7 @@ public class ProductController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })
@@ -106,7 +106,7 @@ public class ProductController {
                     description = "Product object validation error - server error"
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })
@@ -129,7 +129,7 @@ public class ProductController {
                     description = "Product was deleted"
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })
@@ -153,7 +153,7 @@ public class ProductController {
                     description = "Product were not found"
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })
@@ -175,7 +175,7 @@ public class ProductController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })
@@ -195,7 +195,7 @@ public class ProductController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })

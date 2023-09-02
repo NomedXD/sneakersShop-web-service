@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -58,7 +59,7 @@ public class CategoryController {
                     description = "Category object validation error - server error"
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })
@@ -82,7 +83,7 @@ public class CategoryController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = CategoryDto.class)))
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })
@@ -106,7 +107,7 @@ public class CategoryController {
                     description = "Category object validation error - server error"
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })
@@ -129,7 +130,7 @@ public class CategoryController {
                     description = "Category was deleted"
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })
@@ -153,7 +154,7 @@ public class CategoryController {
                     description = "Category were not found"
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })
@@ -179,7 +180,7 @@ public class CategoryController {
             )
     })
     @GetMapping("/export")
-    public ResponseEntity<String> exportCategories() throws CSVExportException {
+    public ResponseEntity<Resource> exportCategories() throws CSVExportException {
         return categoryService.exportCategories();
     }
 

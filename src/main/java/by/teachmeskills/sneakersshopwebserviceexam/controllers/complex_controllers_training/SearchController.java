@@ -46,7 +46,7 @@ public class SearchController {
                     content = @Content(schema = @Schema(implementation = SearchResponseWrapperDto.class))
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })
@@ -70,7 +70,7 @@ public class SearchController {
                     description = "Search object validation error - server error"
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })
@@ -98,7 +98,7 @@ public class SearchController {
                     description = "Search object validation error - server error"
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })

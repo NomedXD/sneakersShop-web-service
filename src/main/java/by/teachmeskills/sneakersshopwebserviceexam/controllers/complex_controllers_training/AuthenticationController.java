@@ -52,7 +52,7 @@ public class AuthenticationController {
                     description = "User does not exist"
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })

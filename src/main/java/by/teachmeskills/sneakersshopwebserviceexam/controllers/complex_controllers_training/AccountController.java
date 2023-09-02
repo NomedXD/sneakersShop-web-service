@@ -68,7 +68,7 @@ public class AccountController {
                     description = "Request UpdateUserRequestWrapperDto object validation error - server error"
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })

@@ -59,7 +59,7 @@ public class OrderController {
                     description = "Order object validation error - server error"
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })
@@ -83,7 +83,7 @@ public class OrderController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = OrderDto.class)))
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })
@@ -107,7 +107,7 @@ public class OrderController {
                     description = "Order object validation error - server error"
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })
@@ -130,7 +130,7 @@ public class OrderController {
                     description = "Order was deleted"
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })
@@ -154,7 +154,7 @@ public class OrderController {
                     description = "Order were not found"
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })
@@ -176,7 +176,7 @@ public class OrderController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = OrderDto.class)))
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "500",
                     description = "Database error - server error"
             )
     })
