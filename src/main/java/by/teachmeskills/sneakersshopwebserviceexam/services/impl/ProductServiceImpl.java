@@ -22,12 +22,16 @@ import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -122,18 +126,21 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<String> exportCategoryProducts(Integer categoryId) throws CSVExportException {
-        writeCsv(categoryId);
-        return new ResponseEntity<>(EshopConstants.successfulExportMessage, HttpStatus.OK);
+    public ResponseEntity<InputStreamResource> exportCategoryProducts(Integer categoryId) throws CSVExportException {
+        return writeCsv(categoryId);
     }
 
-    private void writeCsv(Integer categoryId) throws CSVExportException {
+    private ResponseEntity<InputStreamResource> writeCsv(Integer categoryId) throws CSVExportException {
         List<ProductDto> productDtoList = productRepository.getCategoryProducts(categoryId).stream().map(productConverter::toDto).toList();
-        try (Writer productsWriter = Files.newBufferedWriter(Paths.get("src/main/resources/category_" + categoryId + "_products.csv"))) {
+        try (Writer productsWriter = Files.newBufferedWriter(Paths.get(EshopConstants.resourcesFilePath + "category_" + categoryId + "_products.csv"))) {
             StatefulBeanToCsv<ProductDto> productsSbc = new StatefulBeanToCsvBuilder<ProductDto>(productsWriter)
                     .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
                     .build();
             productsSbc.write(productDtoList);
+            InputStreamResource resource = new InputStreamResource(new FileInputStream(EshopConstants.resourcesFilePath + "category_" + categoryId + "_products.csv"));
+            return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + "category_" + categoryId + "_products.csv")
+                    .contentType(MediaType.parseMediaType("text/csv"))
+                    .body(resource);
         } catch (IOException | CsvRequiredFieldEmptyException | CsvDataTypeMismatchException e) {
             throw new CSVExportException(EshopConstants.errorProductsExportMessage);
         }

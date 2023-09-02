@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -180,7 +181,7 @@ public class CategoryController {
             )
     })
     @GetMapping("/export")
-    public ResponseEntity<Resource> exportCategories() throws CSVExportException {
+    public ResponseEntity<InputStreamResource> exportCategories() throws CSVExportException {
         return categoryService.exportCategories();
     }
 

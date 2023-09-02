@@ -78,29 +78,24 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public ResponseEntity<Resource> exportCategories() throws CSVExportException {
+    public ResponseEntity<InputStreamResource> exportCategories() throws CSVExportException {
         return writeCsv();
     }
 
-    private ResponseEntity<Resource> writeCsv() throws CSVExportException {
+    private ResponseEntity<InputStreamResource> writeCsv() throws CSVExportException {
         List<CategoryDto> categoryDtoList = categoryRepository.read().stream().map(categoryConverter::toDto).toList();
-        try (Writer categoriesWriter = Files.newBufferedWriter(Paths.get(EshopConstants.categoriesFilePath))) {
+        try (Writer categoriesWriter = Files.newBufferedWriter(Paths.get(EshopConstants.resourcesFilePath + "categories.csv"))) {
             StatefulBeanToCsv<CategoryDto> productsSbc = new StatefulBeanToCsvBuilder<CategoryDto>(categoriesWriter)
                     .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
                     .build();
             productsSbc.write(categoryDtoList);
+            InputStreamResource resource = new InputStreamResource(new FileInputStream(EshopConstants.resourcesFilePath + "categories.csv"));
+            return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + "categories.csv")
+                    .contentType(MediaType.parseMediaType("text/csv"))
+                    .body(resource);
         } catch (IOException | CsvRequiredFieldEmptyException | CsvDataTypeMismatchException e) {
             throw new CSVExportException(EshopConstants.errorCategoriesExportMessage);
         }
-        try {
-            InputStreamResource resource = new InputStreamResource(new FileInputStream(EshopConstants.categoriesFilePath));
-            return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + "categories.csv")
-                    .contentType(MediaType.parseMediaType("application/csv"))
-                    .body(resource);
-        } catch (FileNotFoundException e) {
-            throw new CSVExportException(EshopConstants.errorFileNullMessage);
-        }
-
     }
 
     @Override

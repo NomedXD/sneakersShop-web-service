@@ -10,6 +10,7 @@ import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVExportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVImportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,7 +35,7 @@ public interface UserService {
 
     User getUserById(Integer id) throws EntityOperationException;
 
-    ResponseEntity<String> exportUserOrders(Integer userId) throws CSVExportException;
+    ResponseEntity<InputStreamResource> exportUserOrders(Integer userId) throws CSVExportException;
 
     ResponseEntity<List<OrderDto>> importUserOrders(MultipartFile file) throws CSVImportException;
 }

@@ -7,6 +7,7 @@ import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.Sear
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVExportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVImportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,7 +34,7 @@ public interface ProductService {
 
     Long getCountAppropriateProducts(Search search) throws EntityOperationException;
 
-    ResponseEntity<String> exportCategoryProducts(Integer categoryId) throws CSVExportException;
+    ResponseEntity<InputStreamResource> exportCategoryProducts(Integer categoryId) throws CSVExportException;
 
     ResponseEntity<List<ProductDto>> importCategoryProducts(MultipartFile file) throws CSVImportException;
 

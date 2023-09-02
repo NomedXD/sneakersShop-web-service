@@ -28,12 +28,16 @@ import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -151,19 +155,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<String> exportUserOrders(Integer userId) throws CSVExportException {
-        writeCsv(userId);
-        return new ResponseEntity<>(EshopConstants.successfulExportMessage, HttpStatus.OK);
+    public ResponseEntity<InputStreamResource> exportUserOrders(Integer userId) throws CSVExportException {
+        return writeCsv(userId);
     }
 
-    private void writeCsv(Integer userId) throws CSVExportException {
+    private ResponseEntity<InputStreamResource> writeCsv(Integer userId) throws CSVExportException {
         List<OrderDto> orderDtoList = userConverter.toDto(userRepository.getUserById(userId)).getOrders();
         List<OrderProductDto> orderProductDtoList = OrderProductDtoConverter.convertInto(orderDtoList);
-        try (Writer ordersProductsWriter = Files.newBufferedWriter(Paths.get("src/main/resources/user_" + userId + "_orders_products.csv"))) {
+        try (Writer ordersProductsWriter = Files.newBufferedWriter(Paths.get(EshopConstants.resourcesFilePath + "user_" + userId + "_orders_products.csv"))) {
             StatefulBeanToCsv<OrderProductDto> ordersProductsSbc = new StatefulBeanToCsvBuilder<OrderProductDto>(ordersProductsWriter)
                     .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
                     .build();
             ordersProductsSbc.write(orderProductDtoList);
+            InputStreamResource resource = new InputStreamResource(new FileInputStream(EshopConstants.resourcesFilePath + "user_" + userId + "_orders_products.csv"));
+            return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + "user_" + userId + "_orders_products.csv")
+                    .contentType(MediaType.parseMediaType("text/csv"))
+                    .body(resource);
         } catch (IOException | CsvRequiredFieldEmptyException | CsvDataTypeMismatchException e) {
             throw new CSVExportException(EshopConstants.errorOrdersExportMessage);
         }
