@@ -5,7 +5,6 @@ import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVExportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVImportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
