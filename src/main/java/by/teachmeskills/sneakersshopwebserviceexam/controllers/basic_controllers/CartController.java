@@ -6,6 +6,12 @@ import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationExce
 import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
 import by.teachmeskills.sneakersshopwebserviceexam.services.OrderService;
 import by.teachmeskills.sneakersshopwebserviceexam.services.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Objects;
 
+@Tag(name = "cart", description = "Cart Endpoints")
 @RestController
 @RequestMapping("/cart")
 public class CartController {
@@ -31,6 +38,25 @@ public class CartController {
         this.orderService = orderService;
     }
 
+    @Operation(
+            summary = "Remove product from cart",
+            description = "Remove product from cart by product id",
+            tags = {"cart"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Product was removed",
+                    content = @Content(schema = @Schema(implementation = CartDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Cart object validation error - server error"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Database error - server error"
+            )
+    })
     @DeleteMapping("/remove/{productId}")
     public ResponseEntity<CartDto> deleteProductFromCart(@Valid @RequestBody CartDto cartDto, BindingResult result,
                                                          @PathVariable(name = "productId") Integer productId) {
@@ -42,6 +68,25 @@ public class CartController {
         }
     }
 
+    @Operation(
+            summary = "Add product to cart",
+            description = "Add product to cart by product id",
+            tags = {"cart"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Product was added",
+                    content = @Content(schema = @Schema(implementation = CartDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Cart object validation error - server error"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Database error - server error"
+            )
+    })
     @PutMapping("/{productId}")
     public ResponseEntity<CartDto> addProductToCart(@Valid @RequestBody CartDto cartDto, BindingResult result,
                                                     @PathVariable(name = "productId") Integer productId) throws EntityOperationException {
@@ -53,6 +98,25 @@ public class CartController {
         }
     }
 
+    @Operation(
+            summary = "Checkout products in cart",
+            description = "Checkout all products in cart with order info",
+            tags = {"cart"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successful checkout",
+                    content = @Content(schema = @Schema(implementation = CartDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Request CheckoutRequestResponseWrapperDto object validation error - server error"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Database error - server error"
+            )
+    })
     @PostMapping("/checkout")
     public ResponseEntity<CheckoutRequestResponseWrapperDto> submitCheckout(@Valid @RequestBody CheckoutRequestResponseWrapperDto requestBody, BindingResult result) throws EntityOperationException {
         if (!result.hasErrors()) {

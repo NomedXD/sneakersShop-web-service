@@ -3,6 +3,7 @@ package by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode
 @SuperBuilder
 @NoArgsConstructor
+@AllArgsConstructor
 public class ImageDto {
 
     @NotNull(message = "Id field in imageDto is null")

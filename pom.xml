@@ -70,6 +70,23 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
             <version>3.1.2</version>
         </dependency>
+        <!-- Open API -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
+            <version>2.1.0</version>
+        </dependency>
+        <!-- CSV -->
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>5.4</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -84,6 +101,24 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-maven-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <apiDocsUrl>http://localhost:8080/v3/api-docs</apiDocsUrl>
+                    <outputFileName>openapi.yaml</outputFileName>
+                    <outputDir>${project.build.directory}</outputDir>
                 </configuration>
             </plugin>
         </plugins>

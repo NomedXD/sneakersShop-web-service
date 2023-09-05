@@ -1,7 +1,12 @@
 package by.teachmeskills.sneakersshopwebserviceexam.services;
 
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.CategoryDto;
+import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVExportException;
+import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVImportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -15,4 +20,8 @@ public interface CategoryService {
     void delete(Integer id) throws EntityOperationException;
 
     CategoryDto getCategoryById(Integer id) throws EntityOperationException;
+
+    ResponseEntity<InputStreamResource> exportCategories() throws CSVExportException;
+
+    ResponseEntity<List<CategoryDto>> importCategories(MultipartFile file) throws CSVImportException;
 }

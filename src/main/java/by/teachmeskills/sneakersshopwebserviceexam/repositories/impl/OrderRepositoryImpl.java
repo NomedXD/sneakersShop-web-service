@@ -1,10 +1,8 @@
 package by.teachmeskills.sneakersshopwebserviceexam.repositories.impl;
 
 import by.teachmeskills.sneakersshopwebserviceexam.domain.Order;
-import by.teachmeskills.sneakersshopwebserviceexam.domain.Product;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
 import by.teachmeskills.sneakersshopwebserviceexam.repositories.OrderRepository;
-import com.mysql.cj.x.protobuf.MysqlxCrud;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
@@ -61,8 +59,10 @@ public class OrderRepositoryImpl implements OrderRepository {
     @Override
     public void delete(Integer id) throws EntityOperationException {
         try {
-            Order order = entityManager.find(Order.class, id);
-            entityManager.remove(order);
+            // Здесь баг и обычный remove не работает, прикольно...
+            entityManager.createQuery("delete from Order o where o.id = :id")
+                    .setParameter("id", id)
+                    .executeUpdate();
         } catch (PersistenceException e) {
             logger.warn("SQLException while deleting order. Most likely request is wrong. Full message - " + e.getMessage());
             throw new EntityOperationException("Unexpected error on the site. How do you get here?\nCheck us later");

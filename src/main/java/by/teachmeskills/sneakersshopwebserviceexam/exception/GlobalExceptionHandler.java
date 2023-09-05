@@ -21,12 +21,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoSuchUserException.class)
     public ResponseEntity<String> handleNoSuchUserException(NoSuchUserException exception) {
-        return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(UserAlreadyExistException.class)
     public ResponseEntity<String> handleUserAlreadyExistException(UserAlreadyExistException exception) {
-        return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(EntityOperationException.class)
@@ -34,12 +34,22 @@ public class GlobalExceptionHandler {
         if (exception.getException() instanceof ConstraintViolationException) {
             return handleUserAlreadyExistException(new UserAlreadyExistException("User with such email already exist"));
         } else {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<String> handValidationException(ValidationException exception) {
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CSVExportException.class)
+    public ResponseEntity<String> handleCSVExportException(CSVExportException exception) {
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CSVImportException.class)
+    public ResponseEntity<String> handleCSVImportException(CSVImportException exception) {
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

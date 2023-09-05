@@ -5,6 +5,12 @@ import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
 import by.teachmeskills.sneakersshopwebserviceexam.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Objects;
 
+@Tag(name = "account", description = "Account Endpoints")
 @RestController
 @RequestMapping("/account")
 public class AccountController {
@@ -46,6 +53,25 @@ public class AccountController {
 
         Здесь и дальше параметры сессии передаются прямо в RequestBody, а также возвращаются в ответе для наглядности
      */
+    @Operation(
+            summary = "Update user",
+            description = "Update user data by form",
+            tags = {"account"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successful update",
+                    content = @Content(schema = @Schema(implementation = UserDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Request UpdateUserRequestWrapperDto object validation error - server error"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Database error - server error"
+            )
+    })
     @PutMapping("/update")
     public ResponseEntity<UserDto> updateAccountData(@Valid @RequestBody UpdateUserRequestWrapperDto requestBody, BindingResult result) throws EntityOperationException {
         if (!result.hasErrors()) {

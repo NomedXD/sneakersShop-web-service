@@ -8,15 +8,37 @@ import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.Sear
 import by.teachmeskills.sneakersshopwebserviceexam.dto.converters.ProductConverter;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.converters.SearchConverter;
 import by.teachmeskills.sneakersshopwebserviceexam.enums.EshopConstants;
+import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVExportException;
+import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVImportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
 import by.teachmeskills.sneakersshopwebserviceexam.repositories.ProductRepository;
 import by.teachmeskills.sneakersshopwebserviceexam.services.ProductService;
+import com.opencsv.CSVWriter;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -102,6 +124,58 @@ public class ProductServiceImpl implements ProductService {
         Objects.requireNonNull(response.getBody()).setProducts(productList.stream().map(productConverter::toDto).toList());
         return response;
     }
+
+    @Override
+    public ResponseEntity<InputStreamResource> exportCategoryProducts(Integer categoryId) throws CSVExportException {
+        return writeCsv(categoryId);
+    }
+
+    private ResponseEntity<InputStreamResource> writeCsv(Integer categoryId) throws CSVExportException {
+        List<ProductDto> productDtoList = productRepository.getCategoryProducts(categoryId).stream().map(productConverter::toDto).toList();
+        try (Writer productsWriter = Files.newBufferedWriter(Paths.get(EshopConstants.resourcesFilePath + "category_" + categoryId + "_products.csv"))) {
+            StatefulBeanToCsv<ProductDto> productsSbc = new StatefulBeanToCsvBuilder<ProductDto>(productsWriter)
+                    .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+                    .build();
+            productsSbc.write(productDtoList);
+            InputStreamResource resource = new InputStreamResource(new FileInputStream(EshopConstants.resourcesFilePath + "category_" + categoryId + "_products.csv"));
+            return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + "category_" + categoryId + "_products.csv")
+                    .contentType(MediaType.parseMediaType("text/csv"))
+                    .body(resource);
+        } catch (IOException | CsvRequiredFieldEmptyException | CsvDataTypeMismatchException e) {
+            throw new CSVExportException(EshopConstants.errorProductsExportMessage);
+        }
+    }
+
+    @Override
+    public ResponseEntity<List<ProductDto>> importCategoryProducts(MultipartFile file) throws CSVImportException {
+        List<ProductDto> productDtoList = parseCsv(file);
+        if (Optional.ofNullable(productDtoList).isPresent()) {
+            productDtoList.forEach(productDto -> {
+                productDto.setId(0); // Чтобы создавался новый заказ, а не обновлялся этот же, если что - удалить
+                productDto.setId(productRepository.create(productConverter.fromDto(productDto)).getId());
+            });
+            return new ResponseEntity<>(productDtoList, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
+    }
+
+    private List<ProductDto> parseCsv(MultipartFile file) throws CSVImportException {
+        if (Optional.ofNullable(file).isPresent()) {
+            try (Reader productsReader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+                CsvToBean<ProductDto> productsCtb = new CsvToBeanBuilder<ProductDto>(productsReader)
+                        .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+                        .withType(ProductDto.class)
+                        .withIgnoreLeadingWhiteSpace(true)
+                        .build();
+                return productsCtb.parse();
+            } catch (IOException e) {
+                throw new CSVImportException(EshopConstants.errorProductsImportMessage);
+            }
+        } else {
+            throw new CSVImportException(EshopConstants.errorFileNullMessage);
+        }
+    }
+
     /*
     @Override
     public ModelAndView applyProductsQuantity(Cart cart, HttpServletRequest request) {
@@ -115,6 +189,5 @@ public class ProductServiceImpl implements ProductService {
         }
         return new ModelAndView(PagesPathEnum.CART_PAGE.getPath());
     }
-
      */
 }
