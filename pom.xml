@@ -87,6 +87,11 @@
             <artifactId>opencsv</artifactId>
             <version>5.4</version>
         </dependency>
+        <!-- FLYWAY -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-mysql</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

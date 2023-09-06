@@ -4,23 +4,24 @@ import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.CartDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.CheckoutRequestResponseWrapperDto;
-import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface OrderService {
-    OrderDto create(OrderDto entity) throws EntityOperationException;
+    OrderDto create(OrderDto entity);
 
-    List<OrderDto> read() throws EntityOperationException;
+    List<OrderDto> read();
 
-    OrderDto update(OrderDto entity) throws EntityOperationException;
+    OrderDto update(OrderDto entity);
 
-    void delete(Integer id) throws EntityOperationException;
+    void delete(Integer id);
 
-    OrderDto getOrderById(Integer id) throws EntityOperationException;
+    OrderDto getOrderById(Integer id);
 
-    List<OrderDto> getUserOrders(Integer userId) throws EntityOperationException;
+    List<OrderDto> getUserOrders(Integer userId);
 
-    ResponseEntity<CheckoutRequestResponseWrapperDto> applyOrder(OrderDto orderDto, CartDto cartDto, UserDto userDto) throws EntityOperationException;
+    List<OrderDto> getPaginatedOrders(Integer currentPage, Integer pageSize, Integer userId);
+
+    ResponseEntity<CheckoutRequestResponseWrapperDto> applyOrder(OrderDto orderDto, CartDto cartDto, UserDto userDto);
 }

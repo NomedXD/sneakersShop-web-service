@@ -1,7 +1,3 @@
-DROP SCHEMA IF EXISTS tmsdbwebservice;
-CREATE SCHEMA IF NOT EXISTS tmsdbwebservice;
-USE tmsdbwebservice;
-
 DROP TABLE IF EXISTS categories;
 CREATE TABLE categories
 (id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, name VARCHAR(45) DEFAULT (NULL),

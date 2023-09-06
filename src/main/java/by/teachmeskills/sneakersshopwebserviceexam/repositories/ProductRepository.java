@@ -1,22 +1,16 @@
 package by.teachmeskills.sneakersshopwebserviceexam.repositories;
 
 import by.teachmeskills.sneakersshopwebserviceexam.domain.Product;
-import by.teachmeskills.sneakersshopwebserviceexam.domain.Search;
-import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.List;
 
-public interface ProductRepository extends BaseRepository<Product> {
-    List<Product> getCategoryProducts(Integer categoryId) throws EntityOperationException;
+public interface ProductRepository extends JpaRepository<Product, Integer>, JpaSpecificationExecutor<Product> {
+    List<Product> findAllByCategoryId(Integer categoryId);
 
-    List<Product> getOrderProducts(Integer orderId) throws EntityOperationException;
+    List<Product> findAllByCategoryIdOrderByName(Integer categoryId, Pageable pageable);
 
-    Product getProductById(Integer id) throws EntityOperationException;
-
-    List<Product> getSearchedProducts(Search search, Integer integer, Integer count) throws EntityOperationException;
-
-    Long getCountOfAllProducts() throws EntityOperationException;
-    Long getCountAppropriateProducts(Search search) throws EntityOperationException;
-
-    List<Product> readOrderedByNameInRange(Integer first, Integer count) throws EntityOperationException;
+    Product findProductById(Integer id);
 }

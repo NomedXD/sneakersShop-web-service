@@ -1,8 +1,7 @@
-package by.teachmeskills.sneakersshopwebserviceexam.controllers.complex_controllers_training;
+package by.teachmeskills.sneakersshopwebserviceexam.controllers;
 
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.LoginResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
-import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
 import by.teachmeskills.sneakersshopwebserviceexam.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -57,7 +56,7 @@ public class AuthenticationController {
             )
     })
     @PostMapping
-    public ResponseEntity<LoginResponseWrapperDto> logIn(@Valid @RequestBody UserDto userDto, BindingResult result) throws EntityOperationException {
+    public ResponseEntity<LoginResponseWrapperDto> logIn(@Valid @RequestBody UserDto userDto, BindingResult result) {
         if (!result.hasErrors()) {
             return userService.logIn(userDto);
         } else {

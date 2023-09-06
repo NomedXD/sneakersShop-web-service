@@ -6,7 +6,6 @@ import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.SearchDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.SearchResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVExportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVImportException;
-import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,25 +13,27 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface ProductService {
-    ProductDto create(ProductDto productDto) throws EntityOperationException;
+    ProductDto create(ProductDto productDto);
 
-    List<ProductDto> read() throws EntityOperationException;
+    List<ProductDto> read();
 
-    ProductDto update(ProductDto productDto) throws EntityOperationException;
+    ProductDto update(ProductDto productDto);
 
-    void delete(Integer id) throws EntityOperationException;
+    void delete(Integer id);
 
-    List<ProductDto> getCategoryProducts(Integer categoryId) throws EntityOperationException;
+    List<ProductDto> getCategoryProducts(Integer categoryId);
 
-    List<ProductDto> getOrderProducts(Integer orderId) throws EntityOperationException;
+    List<ProductDto> getOrderProducts(Integer orderId);
 
-    ProductDto getProductById(Integer id) throws EntityOperationException;
+    ProductDto getProductById(Integer id);
 
-    ResponseEntity<SearchResponseWrapperDto> getPaginatedProducts(SearchDto searchDto, Integer currentPage) throws EntityOperationException;
+    ResponseEntity<SearchResponseWrapperDto> getSearchedPaginatedProducts(SearchDto searchDto, Integer currentPage, Integer pageSize);
 
-    Long getCountOfAllProducts() throws EntityOperationException;
+    ResponseEntity<List<ProductDto>> getPaginatedProductsByCategoryId(Integer categoryId, Integer currentPage, Integer pageSize);
 
-    Long getCountAppropriateProducts(Search search) throws EntityOperationException;
+    Long getCountOfAllProducts();
+
+    Long getCountAppropriateProducts(Search search);
 
     ResponseEntity<InputStreamResource> exportCategoryProducts(Integer categoryId) throws CSVExportException;
 

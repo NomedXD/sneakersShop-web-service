@@ -9,10 +9,16 @@ import org.springframework.stereotype.Component;
 @Data
 public class SearchConverter {
     public SearchDto toDto(Search search) {
-        return SearchDto.builder().searchString(search.getSearchString()).build();
+        return SearchDto.builder().searchString(search.getSearchString())
+                .priceFrom(search.getPriceFrom())
+                .priceTo(search.getPriceTo())
+                .categoryName(search.getCategoryName()).build();
     }
 
     public Search fromDto(SearchDto searchDto) {
-        return Search.builder().searchString(searchDto.getSearchString()).build();
+        return Search.builder().searchString(searchDto.getSearchString())
+                .priceFrom(searchDto.getPriceFrom())
+                .priceTo(searchDto.getPriceTo())
+                .categoryName(searchDto.getCategoryName()).build();
     }
 }

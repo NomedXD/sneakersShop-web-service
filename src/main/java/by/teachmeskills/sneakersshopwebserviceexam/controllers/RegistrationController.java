@@ -1,12 +1,10 @@
-package by.teachmeskills.sneakersshopwebserviceexam.controllers.complex_controllers_training;
+package by.teachmeskills.sneakersshopwebserviceexam.controllers;
 
-import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.CategoryDto;
-import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
-import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
+import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.RegistrationRequestWrapperDto;
+import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.RegistrationResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
 import by.teachmeskills.sneakersshopwebserviceexam.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,43 +19,47 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.Objects;
 
-@Tag(name = "catalog", description = "Home Endpoints")
+@Tag(name = "registration", description = "Registration Endpoints")
 @RestController
-@RequestMapping("/catalog")
-public class HomeController {
+@RequestMapping("/registration")
+public class RegistrationController {
     private final UserService userService;
 
     @Autowired
-    public HomeController(UserService userService) {
+    public RegistrationController(UserService userService) {
         this.userService = userService;
     }
 
     @Operation(
-            summary = "Get home page",
-            description = "Get home page",
-            tags = {"catalog"})
+            summary = "Registration user",
+            description = "Registration user by form",
+            tags = {"registration"})
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Successful logged and get categories",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = CategoryDto.class)))
+                    description = "Successful registered",
+                    content = @Content(schema = @Schema(implementation = RegistrationResponseWrapperDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Request RegistrationResponseWrapperDto object validation error - server error"
             ),
             @ApiResponse(
                     responseCode = "401",
-                    description = "User not logged"
+                    description = "User with such credentials already exist"
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "Database error - server error"
             )
     })
-    @PostMapping // Изменено на POST, так как нужно послать данные пользователя как сессию
-    public ResponseEntity<List<CategoryDto>> getShopPage(@Valid @RequestBody(required = false) UserDto user, BindingResult result) throws EntityOperationException {
+    // Здесь и в других контроллерах можно сделать один wrapperDto, но тогда не все поля будут использоваться => больше размер пакета
+    @PostMapping
+    public ResponseEntity<RegistrationResponseWrapperDto> register(@Valid @RequestBody RegistrationRequestWrapperDto requestBody, BindingResult result) {
         if (!result.hasErrors()) {
-            return userService.checkIfLoggedInUser(user);
+            return userService.register(requestBody.getUser(), requestBody.getRepeatPassword());
         } else {
             throw new ValidationException(Objects.requireNonNull(result.getFieldError()).getDefaultMessage());
         }

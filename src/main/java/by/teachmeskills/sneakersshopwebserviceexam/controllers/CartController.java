@@ -1,8 +1,7 @@
-package by.teachmeskills.sneakersshopwebserviceexam.controllers.basic_controllers;
+package by.teachmeskills.sneakersshopwebserviceexam.controllers;
 
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.CartDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.CheckoutRequestResponseWrapperDto;
-import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
 import by.teachmeskills.sneakersshopwebserviceexam.services.OrderService;
 import by.teachmeskills.sneakersshopwebserviceexam.services.ProductService;
@@ -89,7 +88,7 @@ public class CartController {
     })
     @PutMapping("/{productId}")
     public ResponseEntity<CartDto> addProductToCart(@Valid @RequestBody CartDto cartDto, BindingResult result,
-                                                    @PathVariable(name = "productId") Integer productId) throws EntityOperationException {
+                                                    @PathVariable(name = "productId") Integer productId) {
         if (!result.hasErrors()) {
             cartDto.addProduct(productService.getProductById(productId));
             return new ResponseEntity<>(cartDto, HttpStatus.OK);
@@ -118,7 +117,7 @@ public class CartController {
             )
     })
     @PostMapping("/checkout")
-    public ResponseEntity<CheckoutRequestResponseWrapperDto> submitCheckout(@Valid @RequestBody CheckoutRequestResponseWrapperDto requestBody, BindingResult result) throws EntityOperationException {
+    public ResponseEntity<CheckoutRequestResponseWrapperDto> submitCheckout(@Valid @RequestBody CheckoutRequestResponseWrapperDto requestBody, BindingResult result) {
         if (!result.hasErrors()) {
             return orderService.applyOrder(requestBody.getOrder(), requestBody.getCart(), requestBody.getUser());
         } else {

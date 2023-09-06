@@ -9,7 +9,6 @@ import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.Regi
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVExportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVImportException;
-import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,23 +16,25 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface UserService {
-    UserDto create(UserDto entity) throws EntityOperationException;
+    UserDto create(UserDto entity);
 
-    List<UserDto> read() throws EntityOperationException;
+    List<UserDto> read();
 
-    UserDto update(UserDto entity) throws EntityOperationException;
+    UserDto update(UserDto entity);
 
-    void delete(Integer id) throws EntityOperationException;
+    void delete(Integer id);
 
-    UserDto updateAccountData(UserDto updatedUserFields, UserDto userDto) throws EntityOperationException;
+    UserDto updateAccountData(UserDto updatedUserFields, UserDto userDto);
 
-    ResponseEntity<LoginResponseWrapperDto> logIn(UserDto userDto) throws EntityOperationException;
+    ResponseEntity<LoginResponseWrapperDto> logIn(UserDto userDto);
 
-    ResponseEntity<RegistrationResponseWrapperDto> register(UserDto userDto, String repeatPassword) throws EntityOperationException;
+    ResponseEntity<RegistrationResponseWrapperDto> register(UserDto userDto, String repeatPassword);
 
-    ResponseEntity<List<CategoryDto>> checkIfLoggedInUser(UserDto userDto) throws EntityOperationException;
+    ResponseEntity<List<CategoryDto>> checkIfLoggedInUser(UserDto userDto);
 
-    User getUserById(Integer id) throws EntityOperationException;
+    User getUserById(Integer id);
+
+    ResponseEntity<List<OrderDto>> getAccount(Integer userId, Integer currentPage, Integer pageSize);
 
     ResponseEntity<InputStreamResource> exportUserOrders(Integer userId) throws CSVExportException;
 

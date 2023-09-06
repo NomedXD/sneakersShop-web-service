@@ -5,7 +5,7 @@ import by.teachmeskills.sneakersshopwebserviceexam.dto.converters.CategoryConver
 import by.teachmeskills.sneakersshopwebserviceexam.enums.EshopConstants;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVExportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVImportException;
-import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
+import by.teachmeskills.sneakersshopwebserviceexam.exception.NoSuchProductException;
 import by.teachmeskills.sneakersshopwebserviceexam.repositories.CategoryRepository;
 import by.teachmeskills.sneakersshopwebserviceexam.services.CategoryService;
 import com.opencsv.CSVWriter;
@@ -17,6 +17,9 @@ import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -49,28 +52,34 @@ public class CategoryServiceImpl implements CategoryService {
 
     // Basic controllers reference
     @Override
-    public CategoryDto create(CategoryDto categoryDto) throws EntityOperationException {
-        return categoryConverter.toDto(categoryRepository.create(categoryConverter.fromDto(categoryDto)));
+    public CategoryDto create(CategoryDto categoryDto) {
+        return categoryConverter.toDto(categoryRepository.save(categoryConverter.fromDto(categoryDto)));
     }
 
     @Override
-    public List<CategoryDto> read() throws EntityOperationException {
-        return categoryRepository.read().stream().map(categoryConverter::toDto).toList();
+    public List<CategoryDto> read() {
+        return categoryRepository.findAll().stream().map(categoryConverter::toDto).toList();
     }
 
     @Override
-    public CategoryDto update(CategoryDto categoryDto) throws EntityOperationException {
-        return categoryConverter.toDto(categoryRepository.update(categoryConverter.fromDto(categoryDto)));
+    public CategoryDto update(CategoryDto categoryDto) {
+        return categoryConverter.toDto(categoryRepository.save(categoryConverter.fromDto(categoryDto)));
     }
 
     @Override
-    public void delete(Integer id) throws EntityOperationException {
-        categoryRepository.delete(id);
+    public void delete(Integer id) {
+        categoryRepository.deleteById(id);
     }
 
     @Override
-    public CategoryDto getCategoryById(Integer id) throws EntityOperationException {
-        return categoryConverter.toDto(categoryRepository.getCategoryById(id));
+    public CategoryDto getCategoryById(Integer id) {
+        return categoryConverter.toDto(categoryRepository.findCategoryById(id).orElseThrow(() -> new NoSuchProductException("Product not found. Id:", id)));
+    }
+
+    @Override
+    public ResponseEntity<List<CategoryDto>> getPaginatedCategories(Integer currentPage, Integer pageSize) {
+        Pageable pageable = PageRequest.of((currentPage - 1), pageSize, Sort.by("name"));
+        return new ResponseEntity<>(categoryRepository.findAll(pageable).getContent().stream().map(categoryConverter::toDto).toList(), HttpStatus.OK);
     }
 
     @Override
@@ -79,7 +88,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private ResponseEntity<InputStreamResource> writeCsv() throws CSVExportException {
-        List<CategoryDto> categoryDtoList = categoryRepository.read().stream().map(categoryConverter::toDto).toList();
+        List<CategoryDto> categoryDtoList = categoryRepository.findAll().stream().map(categoryConverter::toDto).toList();
         try (Writer categoriesWriter = Files.newBufferedWriter(Paths.get(EshopConstants.resourcesFilePath + "categories.csv"))) {
             StatefulBeanToCsv<CategoryDto> productsSbc = new StatefulBeanToCsvBuilder<CategoryDto>(categoriesWriter)
                     .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
@@ -100,7 +109,7 @@ public class CategoryServiceImpl implements CategoryService {
         if (Optional.ofNullable(categoryDtoList).isPresent()) {
             categoryDtoList.forEach(categoryDto -> {
                 categoryDto.setId(0); // Чтобы создавался новый заказ, а не обновлялся этот же, если что - удалить
-                categoryDto.setId(categoryRepository.create(categoryConverter.fromDto(categoryDto)).getId());
+                categoryDto.setId(categoryRepository.save(categoryConverter.fromDto(categoryDto)).getId());
             });
             return new ResponseEntity<>(categoryDtoList, HttpStatus.OK);
         }

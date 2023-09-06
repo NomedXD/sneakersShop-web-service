@@ -1,13 +1,13 @@
 package by.teachmeskills.sneakersshopwebserviceexam.repositories;
 
-import by.teachmeskills.sneakersshopwebserviceexam.domain.Order;
 import by.teachmeskills.sneakersshopwebserviceexam.domain.User;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+import java.util.Optional;
 
-public interface UserRepository extends BaseRepository<User>{
-    User getUserByCredentials(String mail, String password) throws EntityOperationException;
-    List<Order> getUserOrders(Integer id) throws EntityOperationException;
-    User getUserById(Integer id) throws EntityOperationException;
+public interface UserRepository extends JpaRepository<User, Integer> {
+    Optional<User> findUserByMailAndPassword(String mail, String password) throws EntityOperationException;
+
+    Optional<User> findUserById(Integer id) throws EntityOperationException;
 }

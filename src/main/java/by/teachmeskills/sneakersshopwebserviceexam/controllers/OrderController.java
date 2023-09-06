@@ -1,4 +1,4 @@
-package by.teachmeskills.sneakersshopwebserviceexam.controllers.basic_controllers;
+package by.teachmeskills.sneakersshopwebserviceexam.controllers;
 
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderDto;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVExportException;

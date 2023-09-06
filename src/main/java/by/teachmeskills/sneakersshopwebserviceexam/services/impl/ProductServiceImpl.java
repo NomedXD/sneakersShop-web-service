@@ -10,8 +10,9 @@ import by.teachmeskills.sneakersshopwebserviceexam.dto.converters.SearchConverte
 import by.teachmeskills.sneakersshopwebserviceexam.enums.EshopConstants;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVExportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVImportException;
-import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
 import by.teachmeskills.sneakersshopwebserviceexam.repositories.ProductRepository;
+import by.teachmeskills.sneakersshopwebserviceexam.repositories.ProductSearchSpecification;
+import by.teachmeskills.sneakersshopwebserviceexam.services.OrderService;
 import by.teachmeskills.sneakersshopwebserviceexam.services.ProductService;
 import com.opencsv.CSVWriter;
 import com.opencsv.bean.CsvToBean;
@@ -23,6 +24,9 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -48,81 +52,94 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final SearchConverter searchConverter;
     private final ProductConverter productConverter;
+    private final OrderService orderService;
 
     @Autowired
-    public ProductServiceImpl(ProductRepository productRepository, @Lazy SearchConverter searchConverter, @Lazy ProductConverter productConverter) {
+    public ProductServiceImpl(ProductRepository productRepository, @Lazy SearchConverter searchConverter,
+                              @Lazy ProductConverter productConverter, @Lazy OrderService orderService) {
         this.productRepository = productRepository;
         this.searchConverter = searchConverter;
         this.productConverter = productConverter;
+        this.orderService = orderService;
     }
 
     // Basic controllers reference
     @Override
-    public ProductDto create(ProductDto productDto) throws EntityOperationException {
-        return productConverter.toDto(productRepository.create(productConverter.fromDto(productDto)));
+    public ProductDto create(ProductDto productDto) {
+        return productConverter.toDto(productRepository.save(productConverter.fromDto(productDto)));
     }
 
     @Override
-    public List<ProductDto> read() throws EntityOperationException {
-        return productRepository.read().stream().map(productConverter::toDto).toList();
+    public List<ProductDto> read() {
+        return productRepository.findAll().stream().map(productConverter::toDto).toList();
     }
 
     @Override
-    public ProductDto update(ProductDto productDto) throws EntityOperationException {
-        return productConverter.toDto(productRepository.update(productConverter.fromDto(productDto)));
+    public ProductDto update(ProductDto productDto) {
+        return productConverter.toDto(productRepository.save(productConverter.fromDto(productDto)));
     }
 
     @Override
-    public void delete(Integer id) throws EntityOperationException {
-        productRepository.delete(id);
+    public void delete(Integer id) {
+        productRepository.deleteById(id);
     }
 
     @Override
-    public List<ProductDto> getCategoryProducts(Integer categoryId) throws EntityOperationException {
-        return productRepository.getCategoryProducts(categoryId).stream().map(productConverter::toDto).toList();
+    public List<ProductDto> getCategoryProducts(Integer categoryId) {
+        return productRepository.findAllByCategoryId(categoryId).stream().map(productConverter::toDto).toList();
     }
 
     @Override
-    public List<ProductDto> getOrderProducts(Integer orderId) throws EntityOperationException {
-        return productRepository.getOrderProducts(orderId).stream().map(productConverter::toDto).toList();
+    public List<ProductDto> getOrderProducts(Integer orderId) {
+        return orderService.getOrderById(orderId).getProductList();
     }
 
     @Override
-    public ProductDto getProductById(Integer id) throws EntityOperationException {
-        return productConverter.toDto(productRepository.getProductById(id));
+    public ProductDto getProductById(Integer id) {
+        return productConverter.toDto(productRepository.findProductById(id));
     }
 
     // Complex controllers reference
     @Override
-    public Long getCountOfAllProducts() throws EntityOperationException {
-        return productRepository.getCountOfAllProducts();
+    public Long getCountOfAllProducts() {
+        return productRepository.count();
     }
 
     @Override
-    public Long getCountAppropriateProducts(Search search) throws EntityOperationException {
-        return productRepository.getCountAppropriateProducts(search);
+    public Long getCountAppropriateProducts(Search search) {
+        return productRepository.count(new ProductSearchSpecification(search));
     }
 
     @Override
-    public ResponseEntity<SearchResponseWrapperDto> getPaginatedProducts(SearchDto searchDto, Integer currentPage) throws EntityOperationException {
+    public ResponseEntity<SearchResponseWrapperDto> getSearchedPaginatedProducts(SearchDto searchDto, Integer currentPage, Integer pageSize) {
         Search search = Optional.ofNullable(searchDto).map(searchConverter::fromDto).orElse(null);
         Long count;
         List<Product> productList;
         ResponseEntity<SearchResponseWrapperDto> response = new ResponseEntity<>(new SearchResponseWrapperDto(), HttpStatus.OK);
         if ((search == null) || (search.getSearchString() == null)) {
             count = getCountOfAllProducts();
-            productList = productRepository.readOrderedByNameInRange((currentPage - 1) * EshopConstants.PAGE_SIZE, EshopConstants.PAGE_SIZE);
+            Pageable pageable = PageRequest.of((currentPage - 1), pageSize,
+                    Sort.by("name"));
+            productList = productRepository.findAll(pageable).getContent();
         } else {
             count = getCountAppropriateProducts(search);
-            productList = productRepository.getSearchedProducts(search, (currentPage - 1) * EshopConstants.PAGE_SIZE, EshopConstants.PAGE_SIZE);
+            Pageable pageable = PageRequest.of((currentPage - 1), pageSize, Sort.by("name"));
+            productList = productRepository.findAll(new ProductSearchSpecification(search), pageable).getContent();
             Objects.requireNonNull(response.getBody()).setSearch(searchConverter.toDto(search));
         }
         Objects.requireNonNull(response.getBody()).setTotalSearchResults(count);
+        Objects.requireNonNull(response.getBody()).setPageSize(pageSize);
         Objects.requireNonNull(response.getBody()).setCurrentPage(currentPage);
         Objects.requireNonNull(response.getBody()).setTotalPaginatedVisiblePages(EshopConstants.TOTAL_PAGINATED_VISIBLE_PAGES);
-        Objects.requireNonNull(response.getBody()).setLastPageNumber((int) Math.ceil(count / EshopConstants.PAGE_SIZE.doubleValue()));
+        Objects.requireNonNull(response.getBody()).setLastPageNumber((int) Math.ceil(count / pageSize.doubleValue()));
         Objects.requireNonNull(response.getBody()).setProducts(productList.stream().map(productConverter::toDto).toList());
         return response;
+    }
+
+    @Override
+    public ResponseEntity<List<ProductDto>> getPaginatedProductsByCategoryId(Integer categoryId, Integer currentPage, Integer pageSize) {
+        Pageable pageable = PageRequest.of((currentPage - 1), pageSize);
+        return new ResponseEntity<>(productRepository.findAllByCategoryIdOrderByName(categoryId, pageable).stream().map(productConverter::toDto).toList(), HttpStatus.OK);
     }
 
     @Override
@@ -131,7 +148,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private ResponseEntity<InputStreamResource> writeCsv(Integer categoryId) throws CSVExportException {
-        List<ProductDto> productDtoList = productRepository.getCategoryProducts(categoryId).stream().map(productConverter::toDto).toList();
+        List<ProductDto> productDtoList = productRepository.findAllByCategoryId(categoryId).stream().map(productConverter::toDto).toList();
         try (Writer productsWriter = Files.newBufferedWriter(Paths.get(EshopConstants.resourcesFilePath + "category_" + categoryId + "_products.csv"))) {
             StatefulBeanToCsv<ProductDto> productsSbc = new StatefulBeanToCsvBuilder<ProductDto>(productsWriter)
                     .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
@@ -152,7 +169,7 @@ public class ProductServiceImpl implements ProductService {
         if (Optional.ofNullable(productDtoList).isPresent()) {
             productDtoList.forEach(productDto -> {
                 productDto.setId(0); // Чтобы создавался новый заказ, а не обновлялся этот же, если что - удалить
-                productDto.setId(productRepository.create(productConverter.fromDto(productDto)).getId());
+                productDto.setId(productRepository.save(productConverter.fromDto(productDto)).getId());
             });
             return new ResponseEntity<>(productDtoList, HttpStatus.OK);
         }

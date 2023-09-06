@@ -12,7 +12,6 @@ import by.teachmeskills.sneakersshopwebserviceexam.enums.EshopConstants;
 import by.teachmeskills.sneakersshopwebserviceexam.enums.RequestParamsEnum;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVExportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVImportException;
-import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.NoSuchUserException;
 import by.teachmeskills.sneakersshopwebserviceexam.repositories.UserRepository;
 import by.teachmeskills.sneakersshopwebserviceexam.services.CategoryService;
@@ -66,27 +65,32 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto create(UserDto userDto) throws EntityOperationException {
-        return userConverter.toDto(userRepository.create(userConverter.fromDto(userDto)));
+    public UserDto create(UserDto userDto) {
+        return userConverter.toDto(userRepository.save(userConverter.fromDto(userDto)));
     }
 
     @Override
-    public List<UserDto> read() throws EntityOperationException {
-        return userRepository.read().stream().map(userConverter::toDto).toList();
+    public List<UserDto> read() {
+        return userRepository.findAll().stream().map(userConverter::toDto).toList();
     }
 
     @Override
-    public UserDto update(UserDto userDto) throws EntityOperationException {
-        return userConverter.toDto(userRepository.update(userConverter.fromDto(userDto)));
+    public UserDto update(UserDto userDto) {
+        return userConverter.toDto(userRepository.save(userConverter.fromDto(userDto)));
     }
 
     @Override
-    public void delete(Integer id) throws EntityOperationException {
-        userRepository.delete(id);
+    public void delete(Integer id) {
+        userRepository.deleteById(id);
     }
 
     @Override
-    public UserDto updateAccountData(UserDto updatedUserFields, UserDto userDto) throws EntityOperationException {
+    public ResponseEntity<List<OrderDto>> getAccount(Integer userId, Integer currentPage, Integer pageSize) {
+        return new ResponseEntity<>(orderService.getPaginatedOrders(currentPage, pageSize, userId), HttpStatus.OK);
+    }
+
+    @Override
+    public UserDto updateAccountData(UserDto updatedUserFields, UserDto userDto) {
         Map<String, String> params = new HashMap<>();
         params.put(RequestParamsEnum.MOBILE.getValue(), updatedUserFields.getMobile());
         params.put(RequestParamsEnum.STREET.getValue(), updatedUserFields.getStreet());
@@ -99,8 +103,8 @@ public class UserServiceImpl implements UserService {
                 accommodationNumber(params.get(RequestParamsEnum.ACCOMMODATION_NUMBER.getValue())).
                 flatNumber(params.get(RequestParamsEnum.FLAT_NUMBER.getValue())).build();
         User dbUser = userConverter.fromDto(updatedUserFields);
-        dbUser.setOrders(userRepository.getUserOrders(userDto.getId()));
-        userDto = userConverter.toDto(userRepository.update(dbUser));
+        dbUser.setOrders(userRepository.findUserById(userDto.getId()).orElseThrow(() -> new NoSuchUserException("No user with such id")).getOrders());
+        userDto = userConverter.toDto(userRepository.save(dbUser));
         return userDto;
     }
 
@@ -118,11 +122,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<LoginResponseWrapperDto> logIn(UserDto userDto) throws EntityOperationException {
-        User loggedUser = userRepository.getUserByCredentials(userDto.getMail(), userDto.getPassword());
-        if (loggedUser != null) {
+    public ResponseEntity<LoginResponseWrapperDto> logIn(UserDto userDto) {
+        Optional<User> loggedUser = userRepository.findUserByMailAndPassword(userDto.getMail(), userDto.getPassword());
+        if (loggedUser.isPresent()) {
             // Здесь было сохранение пользователя в сессию //
-            return new ResponseEntity<>(new LoginResponseWrapperDto(userConverter.toDto(loggedUser),
+            return new ResponseEntity<>(new LoginResponseWrapperDto(userConverter.toDto(loggedUser.get()),
                     categoryService.read()), HttpStatus.OK);
         } else {
             throw new NoSuchUserException("Wrong email or password. Try again");
@@ -130,18 +134,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<RegistrationResponseWrapperDto> register(UserDto userDto, String repeatPassword) throws EntityOperationException {
+    public ResponseEntity<RegistrationResponseWrapperDto> register(UserDto userDto, String repeatPassword) {
 //        if (!bindingResult.hasErrors() && ValidatorUtils.validatePasswordMatching(user.getPassword(), repeatPassword)) {
 //
 //        }`
-        User user = userRepository.create(User.builder().mail(userDto.getMail()).password(userDto.getPassword()).name(userDto.getName()).
+        User user = userRepository.save(User.builder().mail(userDto.getMail()).password(userDto.getPassword()).name(userDto.getName()).
                 surname(userDto.getSurname()).date(userDto.getDate()).currentBalance(0f).orders(new ArrayList<>()).build());
         return new ResponseEntity<>(new RegistrationResponseWrapperDto(userConverter.toDto(user),
                 categoryService.read()), HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<List<CategoryDto>> checkIfLoggedInUser(UserDto userDto) throws EntityOperationException {
+    public ResponseEntity<List<CategoryDto>> checkIfLoggedInUser(UserDto userDto) {
         if (userDto != null) {
             return new ResponseEntity<>(categoryService.read(), HttpStatus.OK);
         } else {
@@ -150,8 +154,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(Integer id) throws EntityOperationException {
-        return userRepository.getUserById(id);
+    public User getUserById(Integer id) {
+        return userRepository.findUserById(id).orElseThrow(() -> new NoSuchUserException("No user with id " + id));
     }
 
     @Override
@@ -160,7 +164,8 @@ public class UserServiceImpl implements UserService {
     }
 
     private ResponseEntity<InputStreamResource> writeCsv(Integer userId) throws CSVExportException {
-        List<OrderDto> orderDtoList = userConverter.toDto(userRepository.getUserById(userId)).getOrders();
+        List<OrderDto> orderDtoList = userConverter.toDto(userRepository.findUserById(userId).
+                orElseThrow(() -> new NoSuchUserException("No user with id " + userId))).getOrders();
         List<OrderProductDto> orderProductDtoList = OrderProductDtoConverter.convertInto(orderDtoList);
         try (Writer ordersProductsWriter = Files.newBufferedWriter(Paths.get(EshopConstants.resourcesFilePath + "user_" + userId + "_orders_products.csv"))) {
             StatefulBeanToCsv<OrderProductDto> ordersProductsSbc = new StatefulBeanToCsvBuilder<OrderProductDto>(ordersProductsWriter)
