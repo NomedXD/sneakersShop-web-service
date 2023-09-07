@@ -1,11 +1,16 @@
 package by.teachmeskills.sneakersshopwebserviceexam.repositories;
 
 import by.teachmeskills.sneakersshopwebserviceexam.domain.Order;
-import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface OrderRepository extends BaseRepository<Order>{
-    Order getOrderById(Integer id) throws EntityOperationException;
-    List<Order> getUserOrders(Integer userId) throws EntityOperationException;
+public interface OrderRepository extends JpaRepository<Order, Integer> {
+    Optional<Order> findOrderById(Integer id);
+
+    List<Order> findAllByUserId(Integer userId);
+
+    List<Order> findAllByUserId(Integer userId, Pageable pageable);
 }

@@ -3,6 +3,7 @@ package by.teachmeskills.sneakersshopwebserviceexam.exception;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -30,16 +31,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(EntityOperationException.class)
-    public ResponseEntity<String> handleEntityOperationException(EntityOperationException exception) {
-        if (exception.getException() instanceof ConstraintViolationException) {
-            return handleUserAlreadyExistException(new UserAlreadyExistException("User with such email already exist"));
-        } else {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<String> handleEntityOperationException() {
+        return new ResponseEntity<>("Unexpected error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<String> handValidationException(ValidationException exception) {
+    public ResponseEntity<String> handleValidationException(ValidationException exception) {
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
@@ -51,6 +48,31 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CSVImportException.class)
     public ResponseEntity<String> handleCSVImportException(CSVImportException exception) {
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NoSuchProductException.class)
+    public ResponseEntity<String> handleNoSuchProductException(NoSuchProductException exception) {
+        return new ResponseEntity<>(exception.getMessage() + exception.getProductId(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NoSuchOrderException.class)
+    public ResponseEntity<String> handleNoSuchOrderException(NoSuchOrderException exception) {
+        return new ResponseEntity<>(exception.getMessage() + exception.getOrderId(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NoSuchCategoryException.class)
+    public ResponseEntity<String> handleNoSuchCategoryException(NoSuchCategoryException exception) {
+        return new ResponseEntity<>(exception.getMessage() + exception.getCategoryId(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<String> handleDataIntegrityViolationException(DataIntegrityViolationException exception) {
+        if (exception.getCause() instanceof ConstraintViolationException constraintViolationException) {
+            if (constraintViolationException.getConstraintName().equals("users.mail")) {
+                return handleUserAlreadyExistException(new UserAlreadyExistException("User with such email already exist"));
+            }
+        }
+        return handleEntityOperationException();
     }
 }
 

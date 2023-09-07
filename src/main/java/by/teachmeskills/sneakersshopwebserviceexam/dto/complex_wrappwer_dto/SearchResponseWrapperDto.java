@@ -18,6 +18,7 @@ import java.util.List;
 public class SearchResponseWrapperDto {
     private SearchDto search;
     private Long totalSearchResults;
+    private Integer pageSize;
     private Integer currentPage;
     private Integer totalPaginatedVisiblePages;
     private Integer lastPageNumber;

@@ -3,6 +3,7 @@ package by.teachmeskills.sneakersshopwebserviceexam.dto.converters;
 
 import by.teachmeskills.sneakersshopwebserviceexam.domain.Product;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.ProductDto;
+import by.teachmeskills.sneakersshopwebserviceexam.exception.NoSuchOrderException;
 import by.teachmeskills.sneakersshopwebserviceexam.repositories.CategoryRepository;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class ProductConverter {
                 .name(p.getName()).image(Optional.ofNullable(p.getImage()).map(imageConverter::fromDto).orElse(null))
                 .description(p.getDescription())
                 .price(p.getPrice())
-                .category(categoryRepository.getCategoryById(p.getCategoryId()))
+                .category(categoryRepository.findCategoryById(p.getCategoryId()).orElseThrow((() -> new NoSuchOrderException("Category not found. Id:", p.getCategoryId()))))
                 .build()).orElse(null);
     }
 }

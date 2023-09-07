@@ -1,8 +1,7 @@
-package by.teachmeskills.sneakersshopwebserviceexam.controllers.complex_controllers_training;
+package by.teachmeskills.sneakersshopwebserviceexam.controllers;
 
-import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.RegistrationRequestWrapperDto;
-import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.RegistrationResponseWrapperDto;
-import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
+import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.LoginResponseWrapperDto;
+import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
 import by.teachmeskills.sneakersshopwebserviceexam.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,45 +21,44 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Objects;
 
-@Tag(name = "registration", description = "Registration Endpoints")
+@Tag(name = "login", description = "Authentication Endpoints")
 @RestController
-@RequestMapping("/registration")
-public class RegistrationController {
+@RequestMapping("/login")
+public class AuthenticationController {
     private final UserService userService;
 
     @Autowired
-    public RegistrationController(UserService userService) {
+    public AuthenticationController(UserService userService) {
         this.userService = userService;
     }
 
     @Operation(
-            summary = "Registration user",
-            description = "Registration user by form",
-            tags = {"registration"})
+            summary = "Authenticate user",
+            description = "Authenticate user by form",
+            tags = {"login"})
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Successful registered",
-                    content = @Content(schema = @Schema(implementation = RegistrationResponseWrapperDto.class))
+                    description = "Successful login",
+                    content = @Content(schema = @Schema(implementation = UserDto.class))
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Request RegistrationResponseWrapperDto object validation error - server error"
+                    description = "User object validation error - server error"
             ),
             @ApiResponse(
                     responseCode = "401",
-                    description = "User with such credentials already exist"
+                    description = "User does not exist"
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "Database error - server error"
             )
     })
-    // Здесь и в других контроллерах можно сделать один wrapperDto, но тогда не все поля будут использоваться => больше размер пакета
     @PostMapping
-    public ResponseEntity<RegistrationResponseWrapperDto> register(@Valid @RequestBody RegistrationRequestWrapperDto requestBody, BindingResult result) throws EntityOperationException {
+    public ResponseEntity<LoginResponseWrapperDto> logIn(@Valid @RequestBody UserDto userDto, BindingResult result) {
         if (!result.hasErrors()) {
-            return userService.register(requestBody.getUser(), requestBody.getRepeatPassword());
+            return userService.logIn(userDto);
         } else {
             throw new ValidationException(Objects.requireNonNull(result.getFieldError()).getDefaultMessage());
         }

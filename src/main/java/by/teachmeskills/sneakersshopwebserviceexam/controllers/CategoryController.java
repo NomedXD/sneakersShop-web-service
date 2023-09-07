@@ -1,10 +1,12 @@
-package by.teachmeskills.sneakersshopwebserviceexam.controllers.basic_controllers;
+package by.teachmeskills.sneakersshopwebserviceexam.controllers;
 
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.CategoryDto;
+import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.ProductDto;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVExportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVImportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
 import by.teachmeskills.sneakersshopwebserviceexam.services.CategoryService;
+import by.teachmeskills.sneakersshopwebserviceexam.services.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -38,10 +40,12 @@ import java.util.Optional;
 @RequestMapping("/category")
 public class CategoryController {
     private final CategoryService categoryService;
+    private final ProductService productService;
 
     @Autowired
-    public CategoryController(CategoryService categoryService) {
+    public CategoryController(CategoryService categoryService, ProductService productService) {
         this.categoryService = categoryService;
+        this.productService = productService;
     }
 
     @Operation(
@@ -163,6 +167,28 @@ public class CategoryController {
         return Optional.ofNullable(categoryService.getCategoryById(id))
                 .map(category -> new ResponseEntity<>(category, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @Operation(
+            summary = "Get category page",
+            description = "Get category page and it's products",
+            tags = {"category"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Category page with products was loaded",
+                    content = @Content(schema = @Schema(implementation = ProductDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Database error - server error"
+            )
+    })
+    @GetMapping("/{categoryId}")
+    public ResponseEntity<List<ProductDto>> getCategoryPage(@PathVariable(name = "categoryId") Integer categoryId,
+                                                            @RequestParam(name = "page", required = false) Integer currentPage,
+                                                            @RequestParam(name = "size", required = false) Integer pageSize) {
+        return productService.getPaginatedProductsByCategoryId(categoryId, currentPage, pageSize);
     }
 
     @Operation(

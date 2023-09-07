@@ -1,8 +1,10 @@
 package by.teachmeskills.sneakersshopwebserviceexam.repositories;
 
 import by.teachmeskills.sneakersshopwebserviceexam.domain.Category;
-import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CategoryRepository extends BaseRepository<Category>{
-    Category getCategoryById(Integer id) throws EntityOperationException;
+import java.util.Optional;
+
+public interface CategoryRepository extends JpaRepository<Category, Integer> {
+    Optional<Category> findCategoryById(Integer id);
 }

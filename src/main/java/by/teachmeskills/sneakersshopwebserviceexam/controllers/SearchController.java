@@ -1,8 +1,8 @@
-package by.teachmeskills.sneakersshopwebserviceexam.controllers.complex_controllers_training;
+package by.teachmeskills.sneakersshopwebserviceexam.controllers;
 
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.SearchDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.SearchResponseWrapperDto;
-import by.teachmeskills.sneakersshopwebserviceexam.exception.EntityOperationException;
+import by.teachmeskills.sneakersshopwebserviceexam.enums.EshopConstants;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
 import by.teachmeskills.sneakersshopwebserviceexam.services.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,13 +16,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Tag(name = "search", description = "Search Endpoints")
 @RestController
@@ -37,12 +38,12 @@ public class SearchController {
 
     @Operation(
             summary = "Get search page",
-            description = "Get search page initial",
+            description = "Get search page and it's ptoducts",
             tags = {"search"})
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Successful get",
+                    description = "Successful get search page",
                     content = @Content(schema = @Schema(implementation = SearchResponseWrapperDto.class))
             ),
             @ApiResponse(
@@ -51,33 +52,15 @@ public class SearchController {
             )
     })
     @GetMapping
-    public ResponseEntity<SearchResponseWrapperDto> getSearchPage() throws EntityOperationException {
-        return productService.getPaginatedProducts(null, 1);
-    }
-
-    @Operation(
-            summary = "Change search page",
-            description = "Change search page with or without Search filter",
-            tags = {"search"})
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Successful changed page",
-                    content = @Content(schema = @Schema(implementation = SearchResponseWrapperDto.class))
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Search object validation error - server error"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Database error - server error"
-            )
-    })
-    @PostMapping("/{page}") // Заменено на POST так как searchDto должно из сессии браться
-    public ResponseEntity<SearchResponseWrapperDto> changeSearchPage(@Valid @RequestBody SearchDto searchDto, BindingResult result, @PathVariable Integer page) throws EntityOperationException {
+    public ResponseEntity<SearchResponseWrapperDto> getSearchPage(@Valid @RequestBody SearchDto searchDto, BindingResult result,
+                                                                  @RequestParam(name = "page") Integer currentPage,
+                                                                  @RequestParam(name = "size") Integer pageSize) {
         if (!result.hasErrors()) {
-            return productService.getPaginatedProducts(searchDto, page);
+            if (Optional.ofNullable(currentPage).isPresent() && Optional.ofNullable(pageSize).isPresent()) {
+                return productService.getSearchedPaginatedProducts(searchDto, currentPage, pageSize);
+            } else {
+                return productService.getSearchedPaginatedProducts(searchDto, 1, EshopConstants.MIN_PAGE_SIZE);
+            }
         } else {
             throw new ValidationException(Objects.requireNonNull(result.getFieldError()).getDefaultMessage());
         }
@@ -103,9 +86,10 @@ public class SearchController {
             )
     })
     @PostMapping
-    public ResponseEntity<SearchResponseWrapperDto> submitSearch(@Valid @RequestBody SearchDto searchDto, BindingResult result) throws EntityOperationException {
+    public ResponseEntity<SearchResponseWrapperDto> submitSearch(@Valid @RequestBody SearchDto searchDto, BindingResult result,
+                                                                 @RequestParam(name = "size") Integer pageSize) {
         if (!result.hasErrors()) {
-            return productService.getPaginatedProducts(searchDto, 1);
+            return productService.getSearchedPaginatedProducts(searchDto, 1, pageSize);
         } else {
             throw new ValidationException(Objects.requireNonNull(result.getFieldError()).getDefaultMessage());
         }
