@@ -30,7 +30,7 @@ public interface UserService {
 
     ResponseEntity<RegistrationResponseWrapperDto> register(UserDto userDto, String repeatPassword);
 
-    ResponseEntity<List<CategoryDto>> checkIfLoggedInUser(UserDto userDto);
+    Boolean checkIfLoggedInUser(UserDto userDto);
 
     User getUserById(Integer id);
 

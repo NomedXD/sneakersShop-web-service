@@ -3,6 +3,7 @@ package by.teachmeskills.sneakersshopwebserviceexam.controllers;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.UpdateUserRequestWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
+import by.teachmeskills.sneakersshopwebserviceexam.enums.EshopConstants;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
 import by.teachmeskills.sneakersshopwebserviceexam.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Tag(name = "account", description = "Account Endpoints")
 @RestController
@@ -67,13 +68,13 @@ public class AccountController {
     }
 
     @Operation(
-            summary = "Change account page",
-            description = "Change account page(account orders)",
-            tags = {"category"})
+            summary = "Get account page",
+            description = "Get account page and user orders",
+            tags = {"account"})
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Account page with user orders loaded",
+                    description = "Account page with user orders was loaded",
                     content = @Content(schema = @Schema(implementation = OrderDto.class))
             ),
             @ApiResponse(
@@ -81,37 +82,16 @@ public class AccountController {
                     description = "Database error - server error"
             )
     })
-    @GetMapping("/page/{page}")
-    public ResponseEntity<List<OrderDto>> changeAccountPage(@Valid @RequestBody UserDto userDto, BindingResult result,
-                                                            @PathVariable(name = "page") Integer currentPage,
-                                                            @RequestParam(name = "size") Integer pageSize) {
+    @GetMapping
+    public ResponseEntity<List<OrderDto>> getAccountPage(@Valid @RequestBody UserDto userDto, BindingResult result,
+                                                         @RequestParam(name = "page") Integer currentPage,
+                                                         @RequestParam(name = "size") Integer pageSize) {
         if (!result.hasErrors()) {
-            return userService.getAccount(userDto.getId(), currentPage, pageSize);
-        } else {
-            throw new ValidationException(Objects.requireNonNull(result.getFieldError()).getDefaultMessage());
-        }
-    }
-
-    @Operation(
-            summary = "Change account page size",
-            description = "Change account page size and load first page of user orders",
-            tags = {"catalog"})
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Account page with user orders loaded",
-                    content = @Content(schema = @Schema(implementation = OrderDto.class))
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Database error - server error"
-            )
-    })
-    @GetMapping("/sized")
-    public ResponseEntity<List<OrderDto>> changeAccountPageSize(@Valid @RequestBody UserDto userDto, BindingResult result,
-                                                                @RequestParam(name = "size") Integer pageSize) {
-        if (!result.hasErrors()) {
-            return userService.getAccount(userDto.getId(), 1, pageSize);
+            if (Optional.ofNullable(currentPage).isPresent() && Optional.ofNullable(pageSize).isPresent()) {
+                return userService.getAccount(userDto.getId(), currentPage, pageSize);
+            } else {
+                return userService.getAccount(userDto.getId(), 1, EshopConstants.MIN_PAGE_SIZE);
+            }
         } else {
             throw new ValidationException(Objects.requireNonNull(result.getFieldError()).getDefaultMessage());
         }

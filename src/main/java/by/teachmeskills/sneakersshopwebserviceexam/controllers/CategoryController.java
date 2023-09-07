@@ -2,7 +2,6 @@ package by.teachmeskills.sneakersshopwebserviceexam.controllers;
 
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.CategoryDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.ProductDto;
-import by.teachmeskills.sneakersshopwebserviceexam.enums.EshopConstants;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVExportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVImportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
@@ -172,12 +171,12 @@ public class CategoryController {
 
     @Operation(
             summary = "Get category page",
-            description = "Get first category page products",
+            description = "Get category page and it's products",
             tags = {"category"})
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Category page with products loaded",
+                    description = "Category page with products was loaded",
                     content = @Content(schema = @Schema(implementation = ProductDto.class))
             ),
             @ApiResponse(
@@ -186,51 +185,10 @@ public class CategoryController {
             )
     })
     @GetMapping("/{categoryId}")
-    public ResponseEntity<List<ProductDto>> getCategoryPage(@PathVariable(name = "categoryId") Integer categoryId) {
-        return productService.getPaginatedProductsByCategoryId(categoryId, 1, EshopConstants.MIN_PAGE_SIZE);
-    }
-
-    @Operation(
-            summary = "Change category page",
-            description = "Change category page and get products",
-            tags = {"category"})
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Category page with products loaded",
-                    content = @Content(schema = @Schema(implementation = ProductDto.class))
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Database error - server error"
-            )
-    })
-    @GetMapping("/{categoryId}/page/{page}")
-    public ResponseEntity<List<ProductDto>> changeCategoryPage(@PathVariable(name = "categoryId") Integer categoryId,
-                                                               @PathVariable(name = "page") Integer currentPage,
-                                                               @RequestParam(name = "size") Integer pageSize) {
+    public ResponseEntity<List<ProductDto>> getCategoryPage(@PathVariable(name = "categoryId") Integer categoryId,
+                                                            @RequestParam(name = "page", required = false) Integer currentPage,
+                                                            @RequestParam(name = "size", required = false) Integer pageSize) {
         return productService.getPaginatedProductsByCategoryId(categoryId, currentPage, pageSize);
-    }
-
-    @Operation(
-            summary = "Change category page size",
-            description = "Change category page size and load first page",
-            tags = {"category"})
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Category page with products loaded",
-                    content = @Content(schema = @Schema(implementation = ProductDto.class))
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Database error - server error"
-            )
-    })
-    @GetMapping("/{categoryId}/sized")
-    public ResponseEntity<List<ProductDto>> changeCategoryPageSize(@PathVariable(name = "categoryId") Integer categoryId,
-                                               @RequestParam(name = "size") Integer pageSize) {
-        return productService.getPaginatedProductsByCategoryId(categoryId, 1, pageSize);
     }
 
     @Operation(

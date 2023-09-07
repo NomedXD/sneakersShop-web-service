@@ -20,7 +20,7 @@ public interface CategoryService {
 
     CategoryDto getCategoryById(Integer id);
 
-    ResponseEntity<List<CategoryDto>> getPaginatedCategories(Integer currentPage, Integer pageSize);
+    List<CategoryDto> getPaginatedCategories(Integer currentPage, Integer pageSize);
 
     ResponseEntity<InputStreamResource> exportCategories() throws CSVExportException;
 

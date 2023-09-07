@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Tag(name = "search", description = "Search Endpoints")
 @RestController
@@ -38,12 +38,12 @@ public class SearchController {
 
     @Operation(
             summary = "Get search page",
-            description = "Get search page initial",
+            description = "Get search page and it's ptoducts",
             tags = {"search"})
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Successful get",
+                    description = "Successful get search page",
                     content = @Content(schema = @Schema(implementation = SearchResponseWrapperDto.class))
             ),
             @ApiResponse(
@@ -52,64 +52,15 @@ public class SearchController {
             )
     })
     @GetMapping
-    public ResponseEntity<SearchResponseWrapperDto> getSearchPage() {
-        return productService.getSearchedPaginatedProducts(null, 1, EshopConstants.MIN_PAGE_SIZE);
-    }
-
-    @Operation(
-            summary = "Change search page",
-            description = "Change search page with or without Search filter",
-            tags = {"search"})
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Successful changed page",
-                    content = @Content(schema = @Schema(implementation = SearchResponseWrapperDto.class))
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Search object validation error - server error"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Database error - server error"
-            )
-    })
-    @PostMapping("/page/{page}") // Заменено на POST так как searchDto должно из сессии браться
-    public ResponseEntity<SearchResponseWrapperDto> changeSearchPage(@Valid @RequestBody SearchDto searchDto, BindingResult result,
-                                                                     @PathVariable Integer page,
-                                                                     @RequestParam(name = "size") Integer pageSize) {
+    public ResponseEntity<SearchResponseWrapperDto> getSearchPage(@Valid @RequestBody SearchDto searchDto, BindingResult result,
+                                                                  @RequestParam(name = "page") Integer currentPage,
+                                                                  @RequestParam(name = "size") Integer pageSize) {
         if (!result.hasErrors()) {
-            return productService.getSearchedPaginatedProducts(searchDto, page, pageSize);
-        } else {
-            throw new ValidationException(Objects.requireNonNull(result.getFieldError()).getDefaultMessage());
-        }
-    }
-
-    @Operation(
-            summary = "Change search page size",
-            description = "Change search page size and load first page",
-            tags = {"search"})
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Successful changed size",
-                    content = @Content(schema = @Schema(implementation = SearchResponseWrapperDto.class))
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Search object validation error - server error"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Database error - server error"
-            )
-    })
-    @GetMapping("/sized")
-    public ResponseEntity<SearchResponseWrapperDto> changeSearchPageSize(@Valid @RequestBody SearchDto searchDto, BindingResult result,
-                                                                         @RequestParam(name = "size") Integer pageSize) {
-        if (!result.hasErrors()) {
-            return productService.getSearchedPaginatedProducts(searchDto, 1, pageSize);
+            if (Optional.ofNullable(currentPage).isPresent() && Optional.ofNullable(pageSize).isPresent()) {
+                return productService.getSearchedPaginatedProducts(searchDto, currentPage, pageSize);
+            } else {
+                return productService.getSearchedPaginatedProducts(searchDto, 1, EshopConstants.MIN_PAGE_SIZE);
+            }
         } else {
             throw new ValidationException(Objects.requireNonNull(result.getFieldError()).getDefaultMessage());
         }

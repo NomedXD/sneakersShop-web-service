@@ -7,6 +7,7 @@ import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderProductDto
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.LoginResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.RegistrationResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
+import by.teachmeskills.sneakersshopwebserviceexam.dto.converters.CategoryConverter;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.converters.UserConverter;
 import by.teachmeskills.sneakersshopwebserviceexam.enums.EshopConstants;
 import by.teachmeskills.sneakersshopwebserviceexam.enums.RequestParamsEnum;
@@ -55,13 +56,17 @@ public class UserServiceImpl implements UserService {
     private final CategoryService categoryService;
     private final OrderService orderService;
     private final UserConverter userConverter;
+    private final CategoryConverter categoryConverter;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, CategoryService categoryService, @Lazy OrderService orderService, @Lazy UserConverter userConverter) {
+    public UserServiceImpl(UserRepository userRepository, CategoryService categoryService,
+                           @Lazy OrderService orderService, @Lazy UserConverter userConverter,
+                           @Lazy CategoryConverter categoryConverter) {
         this.userRepository = userRepository;
         this.categoryService = categoryService;
         this.orderService = orderService;
         this.userConverter = userConverter;
+        this.categoryConverter = categoryConverter;
     }
 
     @Override
@@ -127,7 +132,7 @@ public class UserServiceImpl implements UserService {
         if (loggedUser.isPresent()) {
             // Здесь было сохранение пользователя в сессию //
             return new ResponseEntity<>(new LoginResponseWrapperDto(userConverter.toDto(loggedUser.get()),
-                    categoryService.read()), HttpStatus.OK);
+                    categoryService.getPaginatedCategories(1, EshopConstants.MIN_PAGE_SIZE)), HttpStatus.OK);
         } else {
             throw new NoSuchUserException("Wrong email or password. Try again");
         }
@@ -141,16 +146,12 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.save(User.builder().mail(userDto.getMail()).password(userDto.getPassword()).name(userDto.getName()).
                 surname(userDto.getSurname()).date(userDto.getDate()).currentBalance(0f).orders(new ArrayList<>()).build());
         return new ResponseEntity<>(new RegistrationResponseWrapperDto(userConverter.toDto(user),
-                categoryService.read()), HttpStatus.OK);
+                categoryService.getPaginatedCategories(1, EshopConstants.MIN_PAGE_SIZE)), HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<List<CategoryDto>> checkIfLoggedInUser(UserDto userDto) {
-        if (userDto != null) {
-            return new ResponseEntity<>(categoryService.read(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public Boolean checkIfLoggedInUser(UserDto userDto) {
+        return userDto != null;
     }
 
     @Override

@@ -77,9 +77,9 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public ResponseEntity<List<CategoryDto>> getPaginatedCategories(Integer currentPage, Integer pageSize) {
+    public List<CategoryDto> getPaginatedCategories(Integer currentPage, Integer pageSize) {
         Pageable pageable = PageRequest.of((currentPage - 1), pageSize, Sort.by("name"));
-        return new ResponseEntity<>(categoryRepository.findAll(pageable).getContent().stream().map(categoryConverter::toDto).toList(), HttpStatus.OK);
+        return categoryRepository.findAll(pageable).getContent().stream().map(categoryConverter::toDto).toList();
     }
 
     @Override
