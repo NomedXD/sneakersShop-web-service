@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -67,6 +68,7 @@ public class CategoryController {
                     description = "Database error - server error"
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<CategoryDto> createCategory(@Valid @RequestBody CategoryDto categoryDto, BindingResult result) {
         if (!result.hasErrors()) {
@@ -115,6 +117,7 @@ public class CategoryController {
                     description = "Database error - server error"
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping
     public ResponseEntity<CategoryDto> updateCategory(@Valid @RequestBody CategoryDto categoryDto, BindingResult result) {
         if (!result.hasErrors()) {
@@ -138,6 +141,7 @@ public class CategoryController {
                     description = "Database error - server error"
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/remove/{id}")
     public void deleteCategory(@PathVariable Integer id) {
         categoryService.delete(id);
@@ -205,6 +209,7 @@ public class CategoryController {
                     description = "CSVExportException was thrown - server error"
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/export")
     public ResponseEntity<InputStreamResource> exportCategories() throws CSVExportException {
         return categoryService.exportCategories();
@@ -224,6 +229,7 @@ public class CategoryController {
                     description = "CSVImportException was thrown - server error"
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/import")
     public ResponseEntity<List<CategoryDto>> importCategories(@RequestParam("file") MultipartFile file) throws CSVImportException {
         return categoryService.importCategories(file);

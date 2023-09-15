@@ -1,5 +1,6 @@
 package by.teachmeskills.sneakersshopwebserviceexam.controllers;
 
+import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.RegistrationRequestWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.RegistrationResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
@@ -57,7 +58,7 @@ public class RegistrationController {
     })
     // Здесь и в других контроллерах можно сделать один wrapperDto, но тогда не все поля будут использоваться => больше размер пакета
     @PostMapping
-    public ResponseEntity<RegistrationResponseWrapperDto> register(@Valid @RequestBody RegistrationRequestWrapperDto requestBody, BindingResult result) {
+    public ResponseEntity<UserDto> register(@Valid @RequestBody RegistrationRequestWrapperDto requestBody, BindingResult result) {
         if (!result.hasErrors()) {
             return userService.register(requestBody.getUser(), requestBody.getRepeatPassword());
         } else {

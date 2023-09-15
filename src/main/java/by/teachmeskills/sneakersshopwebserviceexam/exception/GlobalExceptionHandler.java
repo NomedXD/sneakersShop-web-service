@@ -55,6 +55,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(exception.getMessage() + exception.getProductId(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(NoSuchImageException.class)
+    public ResponseEntity<String> handleNoSuchImageException(NoSuchImageException exception) {
+        return new ResponseEntity<>(exception.getMessage() + exception.getImageId(), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(NoSuchOrderException.class)
     public ResponseEntity<String> handleNoSuchOrderException(NoSuchOrderException exception) {
         return new ResponseEntity<>(exception.getMessage() + exception.getOrderId(), HttpStatus.BAD_REQUEST);

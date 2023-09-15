@@ -56,7 +56,7 @@ public class OrderProductDto {
     private Float shippingCost;
 
     @CsvBindByName
-    private String code;
+    private String discountCode;
 
     @CsvBindByName
     private String address;

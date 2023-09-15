@@ -1,8 +1,6 @@
 package by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto;
 
-import by.teachmeskills.sneakersshopwebserviceexam.utils.ImageCsvConverter;
 import com.opencsv.bean.CsvBindByName;
-import com.opencsv.bean.CsvCustomBindByName;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -12,6 +10,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+
+import java.util.List;
 
 @Data
 @EqualsAndHashCode
@@ -30,9 +30,8 @@ public class ProductDto {
     @CsvBindByName
     private String name;
 
-    @NotNull(message = "Image field in productDto is null")
-    @CsvCustomBindByName(converter = ImageCsvConverter.class)
-    private ImageDto image;
+    @NotNull(message = "Images field in productDto is null")
+    private List<ImageDto> imageDtoList;
 
     @NotNull(message = "Description field in productDto is null")
     @Size(max = 2000, message = "Out of bounds productDto description")

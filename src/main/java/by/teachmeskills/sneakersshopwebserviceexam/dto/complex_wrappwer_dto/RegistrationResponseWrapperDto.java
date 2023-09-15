@@ -17,5 +17,4 @@ import java.util.List;
 @AllArgsConstructor
 public class RegistrationResponseWrapperDto {
     private UserDto user;
-    private List<CategoryDto> categories;
 }

@@ -1,5 +1,8 @@
 package by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto;
 
+import by.teachmeskills.sneakersshopwebserviceexam.domain.Cart;
+import by.teachmeskills.sneakersshopwebserviceexam.domain.DiscountCode;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
@@ -28,6 +31,9 @@ public class CartDto {
     @Size(max = 100, message = "Out of bounds cartDto products quantity")
     private Map<Integer, Integer> productQuantities;
 
+    @Nullable
+    private DiscountCode appliedDiscountCode;
+
     public void addProduct(ProductDto productDto) {
         products.put(productDto.getId(), productDto);
         productQuantities.put(productDto.getId(), 1);
@@ -39,6 +45,16 @@ public class CartDto {
         products.remove(productId);
         totalPrice -= productDto.getPrice() * productQuantities.get(productId);
         productQuantities.remove(productId);
+    }
+
+    public static Cart applyDiscountCode(DiscountCode discountCode, Cart cart) {
+        if (cart != null) {
+            cart.setAppliedDiscountCode(discountCode);
+        } else {
+            cart = new Cart();
+            cart.setAppliedDiscountCode(discountCode);
+        }
+        return cart;
     }
 
     public List<ProductDto> getProducts() {

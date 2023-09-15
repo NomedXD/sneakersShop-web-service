@@ -1,0 +1,37 @@
+ALTER TABLE users DROP COLUMN balance;
+
+DROP TABLE IF EXISTS users_roles;
+CREATE TABLE users_roles
+(id INT PRIMARY KEY AUTO_INCREMENT, user_id INT NOT NULL, role_id INT NOT NULL);
+INSERT INTO users_roles(USER_ID, ROLE_ID)
+VALUES
+    (1,2),
+    (9,2);
+
+DROP TABLE IF EXISTS roles;
+CREATE TABLE roles
+(id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, name VARCHAR(45) NOT NULL);
+INSERT INTO roles(ID, NAME)
+VALUES
+    (1,'ADMIN'),
+    (2,'USER');
+
+
+DROP TABLE IF EXISTS orders_products;
+CREATE TABLE orders_products
+(id INT PRIMARY KEY  NOT NULL AUTO_INCREMENT, order_id INT NOT NULL, product_id INT NOT NULL);
+INSERT INTO orders_products(ORDER_ID, PRODUCT_ID)
+VALUES
+    (9,3),
+    (9,4),
+    (10,3);
+
+DROP TABLE IF EXISTS order_details;
+CREATE TABLE order_details
+(id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, order_id INT NOT NULL, product_id INT NOT NULL, quantity INT NOT NULL);
+INSERT INTO order_details(ORDER_ID, PRODUCT_ID, QUANTITY)
+VALUES
+    (9, 3, 2),
+    (9,4,1),
+    (10,3, 1);
+

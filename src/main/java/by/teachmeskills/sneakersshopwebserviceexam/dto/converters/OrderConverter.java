@@ -14,16 +14,18 @@ import java.util.Optional;
 @Data
 public class OrderConverter {
     private final ProductConverter productConverter;
+    private final DiscountCodeConverter discountCodeConverter;
     private final UserService userService;
 
     @Autowired
-    public OrderConverter(ProductConverter productConverter, UserService userService) {
+    public OrderConverter(ProductConverter productConverter, DiscountCodeConverter discountCodeConverter, UserService userService) {
         this.productConverter = productConverter;
+        this.discountCodeConverter = discountCodeConverter;
         this.userService = userService;
     }
 
     public OrderDto toDto(Order order) {
-        return Optional.ofNullable(order).map(o -> OrderDto.builder()
+         OrderDto orderDto =  Optional.ofNullable(order).map(o -> OrderDto.builder()
                 .id(o.getId())
                 .price(o.getPrice()).price(o.getPrice())
                 .date(o.getDate())
@@ -32,14 +34,19 @@ public class OrderConverter {
                 .creditCardNumber(o.getCreditCardNumber())
                 .shippingType(o.getShippingType())
                 .shippingCost(o.getShippingCost())
-                .code(o.getCode())
                 .address(o.getAddress())
                 .customerNotes(o.getCustomerNotes())
+                 .orderDetails(order.getOrderDetails())
                 .build()).orElse(null);
+        assert order != null;
+        if (Optional.ofNullable(order.getDiscountCode()).isPresent()) {
+             orderDto.setDiscountCode(discountCodeConverter.toDto(order.getDiscountCode()));
+        }
+        return orderDto;
     }
 
     public Order fromDto(OrderDto orderDto) {
-        return Optional.ofNullable(orderDto).map(o -> Order.builder()
+        Order order = Optional.ofNullable(orderDto).map(o -> Order.builder()
                 .id(o.getId())
                 .price(o.getPrice()).price(o.getPrice())
                 .date(o.getDate())
@@ -48,9 +55,13 @@ public class OrderConverter {
                 .creditCardNumber(o.getCreditCardNumber())
                 .shippingType(o.getShippingType())
                 .shippingCost(o.getShippingCost())
-                .code(o.getCode())
                 .address(o.getAddress())
                 .customerNotes(o.getCustomerNotes())
                 .build()).orElse(null);
+        assert orderDto != null;
+        if (Optional.ofNullable(orderDto.getDiscountCode()).isPresent()) {
+            order.setDiscountCode(discountCodeConverter.fromDto(orderDto.getDiscountCode()));
+        }
+        return order;
     }
 }

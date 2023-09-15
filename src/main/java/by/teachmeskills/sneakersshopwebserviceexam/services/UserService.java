@@ -4,6 +4,7 @@ package by.teachmeskills.sneakersshopwebserviceexam.services;
 import by.teachmeskills.sneakersshopwebserviceexam.domain.User;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.CategoryDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderDto;
+import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.GetAccountResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.LoginResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.RegistrationResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
@@ -28,13 +29,13 @@ public interface UserService {
 
     ResponseEntity<LoginResponseWrapperDto> logIn(UserDto userDto);
 
-    ResponseEntity<RegistrationResponseWrapperDto> register(UserDto userDto, String repeatPassword);
+    ResponseEntity<UserDto> register(UserDto userDto, String repeatPassword);
 
     Boolean checkIfLoggedInUser(UserDto userDto);
 
     User getUserById(Integer id);
 
-    ResponseEntity<List<OrderDto>> getAccount(Integer userId, Integer currentPage, Integer pageSize);
+    ResponseEntity<GetAccountResponseWrapperDto> getAccount(UserDto userDto, Integer currentPage, Integer pageSize);
 
     ResponseEntity<InputStreamResource> exportUserOrders(Integer userId) throws CSVExportException;
 

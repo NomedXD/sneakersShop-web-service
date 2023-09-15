@@ -3,14 +3,18 @@ package by.teachmeskills.sneakersshopwebserviceexam.utils;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderProductDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.ProductDto;
+import by.teachmeskills.sneakersshopwebserviceexam.repositories.OrderRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 public class OrderProductDtoConverter {
+
     public static List<OrderProductDto> convertInto(List<OrderDto> orderDtoList) {
         List<OrderProductDto> orderProductDtoList = new ArrayList<>();
         orderDtoList.forEach(orderDto -> orderDto.getProductList().forEach(productDto -> orderProductDtoList.add(OrderProductDto.builder()
@@ -27,7 +31,7 @@ public class OrderProductDtoConverter {
                 .creditCardNumber(orderDto.getCreditCardNumber())
                 .shippingType(orderDto.getShippingType())
                 .shippingCost(orderDto.getShippingCost())
-                .code(orderDto.getCode())
+                .discountCode(Optional.ofNullable(orderDto.getDiscountCode()).get().getName())
                 .address(orderDto.getAddress())
                 .customerNotes(orderDto.getCustomerNotes()).build())));
         return orderProductDtoList;
@@ -52,7 +56,7 @@ public class OrderProductDtoConverter {
                         .creditCardNumber(orderProductDto.getCreditCardNumber())
                         .shippingType(orderProductDto.getShippingType())
                         .shippingCost(orderProductDto.getShippingCost())
-                        .code(orderProductDto.getCode())
+                        .discountCode(null) //!!!!!!!!!!!
                         .address(orderProductDto.getAddress())
                         .customerNotes(orderProductDto.getCustomerNotes()).build());
             }

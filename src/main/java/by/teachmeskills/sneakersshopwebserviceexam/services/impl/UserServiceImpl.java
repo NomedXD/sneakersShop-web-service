@@ -1,9 +1,11 @@
 package by.teachmeskills.sneakersshopwebserviceexam.services.impl;
 
+import by.teachmeskills.sneakersshopwebserviceexam.domain.Role;
 import by.teachmeskills.sneakersshopwebserviceexam.domain.User;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.CategoryDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderProductDto;
+import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.GetAccountResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.LoginResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.RegistrationResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
@@ -11,6 +13,7 @@ import by.teachmeskills.sneakersshopwebserviceexam.dto.converters.CategoryConver
 import by.teachmeskills.sneakersshopwebserviceexam.dto.converters.UserConverter;
 import by.teachmeskills.sneakersshopwebserviceexam.enums.EshopConstants;
 import by.teachmeskills.sneakersshopwebserviceexam.enums.RequestParamsEnum;
+import by.teachmeskills.sneakersshopwebserviceexam.enums.UserRoleEnum;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVExportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVImportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.NoSuchUserException;
@@ -33,6 +36,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -56,17 +60,16 @@ public class UserServiceImpl implements UserService {
     private final CategoryService categoryService;
     private final OrderService orderService;
     private final UserConverter userConverter;
-    private final CategoryConverter categoryConverter;
+    private final PasswordEncoder encoder;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, CategoryService categoryService,
-                           @Lazy OrderService orderService, @Lazy UserConverter userConverter,
-                           @Lazy CategoryConverter categoryConverter) {
+                           @Lazy OrderService orderService, @Lazy UserConverter userConverter, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.categoryService = categoryService;
         this.orderService = orderService;
         this.userConverter = userConverter;
-        this.categoryConverter = categoryConverter;
+        this.encoder = passwordEncoder;
     }
 
     @Override
@@ -90,8 +93,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<List<OrderDto>> getAccount(Integer userId, Integer currentPage, Integer pageSize) {
-        return new ResponseEntity<>(orderService.getPaginatedOrders(currentPage, pageSize, userId), HttpStatus.OK);
+    public ResponseEntity<GetAccountResponseWrapperDto> getAccount(UserDto userDto, Integer currentPage, Integer pageSize) {
+        return new ResponseEntity<>(new GetAccountResponseWrapperDto(orderService.getPaginatedOrders(currentPage, pageSize, userDto.getId()), userDto), HttpStatus.OK);
     }
 
     @Override
@@ -103,7 +106,7 @@ public class UserServiceImpl implements UserService {
         params.put(RequestParamsEnum.FLAT_NUMBER.getValue(), updatedUserFields.getFlatNumber());
         setInputs(params, userDto);
         updatedUserFields = UserDto.builder().id(userDto.getId()).mail(userDto.getMail()).password(userDto.getPassword()).
-                name(userDto.getName()).surname(userDto.getSurname()).date(userDto.getDate()).currentBalance(userDto.getCurrentBalance()).
+                name(userDto.getName()).surname(userDto.getSurname()).date(userDto.getDate()).
                 mobile(params.get(RequestParamsEnum.MOBILE.getValue())).street(params.get(RequestParamsEnum.STREET.getValue())).
                 accommodationNumber(params.get(RequestParamsEnum.ACCOMMODATION_NUMBER.getValue())).
                 flatNumber(params.get(RequestParamsEnum.FLAT_NUMBER.getValue())).build();
@@ -139,14 +142,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<RegistrationResponseWrapperDto> register(UserDto userDto, String repeatPassword) {
-//        if (!bindingResult.hasErrors() && ValidatorUtils.validatePasswordMatching(user.getPassword(), repeatPassword)) {
-//
-//        }`
-        User user = userRepository.save(User.builder().mail(userDto.getMail()).password(userDto.getPassword()).name(userDto.getName()).
-                surname(userDto.getSurname()).date(userDto.getDate()).currentBalance(0f).orders(new ArrayList<>()).build());
-        return new ResponseEntity<>(new RegistrationResponseWrapperDto(userConverter.toDto(user),
-                categoryService.getPaginatedCategories(1, EshopConstants.MIN_PAGE_SIZE)), HttpStatus.OK);
+    public ResponseEntity<UserDto> register(UserDto userDto, String repeatPassword) {
+        User user = userRepository.save(User.builder().mail(userDto.getMail()).password(encoder.encode(userDto.getPassword())).name(userDto.getName()).
+                surname(userDto.getSurname()).date(userDto.getDate()).orders(new ArrayList<>()).roles(List.of(Role.builder().id(2).name(UserRoleEnum.USER.name()).build())).build());
+        return new ResponseEntity<>(userConverter.toDto(user), HttpStatus.OK);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package by.teachmeskills.sneakersshopwebserviceexam.domain;
 
+import jakarta.annotation.Nullable;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
@@ -17,6 +18,9 @@ public class Cart {
     private float totalPrice;
 
     private Map<Integer, Integer> productQuantities;
+
+    @Nullable
+    private DiscountCode appliedDiscountCode;
 
     public Cart() {
         this.products = new HashMap<>();
@@ -47,6 +51,16 @@ public class Cart {
         return cart;
     }
 
+    public static Cart applyDiscountCode(DiscountCode discountCode, Cart cart) {
+        if (cart != null) {
+            cart.setAppliedDiscountCode(discountCode);
+        } else {
+            cart = new Cart();
+            cart.setAppliedDiscountCode(discountCode);
+        }
+        return cart;
+    }
+
     public List<Product> getProducts() {
         return new ArrayList<>(products.values());
     }
@@ -57,6 +71,8 @@ public class Cart {
 
     public void clear() {
         products.clear();
+        totalPrice = 0;
+        appliedDiscountCode = null;
         productQuantities.clear();
     }
 

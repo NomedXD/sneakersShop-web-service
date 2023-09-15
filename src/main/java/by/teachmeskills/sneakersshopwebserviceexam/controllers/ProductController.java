@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -63,6 +64,7 @@ public class ProductController {
                     description = "Database error - server error"
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ProductDto> createProduct(@Valid @RequestBody ProductDto productDto, BindingResult result) {
         if (!result.hasErrors()) {
@@ -111,6 +113,7 @@ public class ProductController {
                     description = "Database error - server error"
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping
     public ResponseEntity<ProductDto> updateProduct(@Valid @RequestBody ProductDto productDto, BindingResult result) {
         if (!result.hasErrors()) {
@@ -134,6 +137,7 @@ public class ProductController {
                     description = "Database error - server error"
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/remove/{id}")
     public void deleteProduct(@PathVariable Integer id) {
         productService.delete(id);
@@ -200,6 +204,7 @@ public class ProductController {
                     description = "Database error - server error"
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/allByOrder/{id}")
     public ResponseEntity<List<ProductDto>> getOrderProducts(@PathVariable Integer id) {
         return new ResponseEntity<>(productService.getOrderProducts(id), HttpStatus.OK);
@@ -219,6 +224,7 @@ public class ProductController {
                     description = "CSVExportException was thrown - server error"
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/export/{categoryId}")
     public ResponseEntity<InputStreamResource> exportCategoryProducts(@PathVariable Integer categoryId) throws CSVExportException {
         return productService.exportCategoryProducts(categoryId);
@@ -238,6 +244,7 @@ public class ProductController {
                     description = "CSVImportException was thrown - server error"
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/import")
     public ResponseEntity<List<ProductDto>> importCategoryProducts(@RequestParam("file") MultipartFile file) throws CSVImportException {
         return productService.importCategoryProducts(file);

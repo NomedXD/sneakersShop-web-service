@@ -1,5 +1,6 @@
 package by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -20,7 +21,10 @@ public class ImageDto {
     @Min(value = 1, message = "Id field in imageDto less then 1")
     private Integer id;
 
-    @NotNull(message = "Path field in categoryDto is null")
+    @NotNull(message = "Path field in imageDto is null")
     @Size(max = 45, message = "Out of bounds imageDto path")
     private String path;
+
+    @Nullable
+    private Boolean isPrime;
 }
