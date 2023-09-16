@@ -65,7 +65,7 @@ public class Order extends BaseEntity{
     @Column(name = "customer_notes")
     private String customerNotes;
 
-    @OneToMany(mappedBy = "order", orphanRemoval = true, fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REMOVE})
+    @OneToMany(mappedBy = "order", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<OrderDetails> orderDetails;

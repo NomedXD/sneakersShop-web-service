@@ -8,6 +8,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
@@ -17,11 +18,12 @@ import java.util.Map;
 @Data
 @EqualsAndHashCode
 @SuperBuilder
+@NoArgsConstructor
 public class CartDto {
 
     @NotNull(message = "Product field in cartDto is null")
     @Size(max = 100, message = "Out of bounds cartDto products")
-    private final Map<Integer, ProductDto> products;
+    private Map<Integer, ProductDto> products;
 
     @NotNull(message = "Total price field in cartDto is null")
     @PositiveOrZero(message = "Total price in categoryDto must be positive or zero")

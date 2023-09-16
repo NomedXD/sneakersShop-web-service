@@ -6,6 +6,7 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,8 +28,8 @@ public class UserConverter {
         return Optional.ofNullable(user).map(u -> UserDto.builder().id(u.getId()).mail(u.getMail()).password(u.getPassword()).
                 name(u.getName()).surname(u.getSurname()).date(u.getDate()).mobile(u.getMobile()).street(u.getStreet()).
                 accommodationNumber(u.getAccommodationNumber()).flatNumber(u.getFlatNumber()).
-                orders(Optional.ofNullable(u.getOrders()).map(orders -> orders.stream().map(orderConverter::toDto).
-                        toList()).orElse(List.of())).
+                orders(new ArrayList<>((Optional.ofNullable(u.getOrders()).map(orders -> orders.stream().map(orderConverter::toDto).
+                        toList())).orElse(List.of()))).
                 roles(Optional.ofNullable(u.getRoles()).map(roles -> roles.stream().map(roleConverter::toDto).
                         collect(Collectors.toList())).orElse(List.of())).build()).orElse(null);
     }
@@ -37,7 +38,7 @@ public class UserConverter {
         return Optional.ofNullable(userDto).map(u -> User.builder().id(u.getId()).mail(u.getMail()).password(u.getPassword()).
                 name(u.getName()).surname(u.getSurname()).date(u.getDate()).mobile(u.getMobile()).street(u.getStreet()).
                 accommodationNumber(u.getAccommodationNumber()).flatNumber(u.getFlatNumber()).
-                orders(Optional.ofNullable(u.getOrders()).map(orders -> orders.stream().map(orderConverter::fromDto).
-                        toList()).orElse(List.of())).roles(Optional.ofNullable(u.getRoles()).map(roles -> roles.stream().map(roleConverter::fromDto).collect(Collectors.toList())).orElse(List.of())).build()).orElse(null);
+                orders(new ArrayList<>((Optional.ofNullable(u.getOrders()).map(orders -> orders.stream().map(orderConverter::fromDto).
+                        toList())).orElse(List.of()))).roles(Optional.ofNullable(u.getRoles()).map(roles -> roles.stream().map(roleConverter::fromDto).collect(Collectors.toList())).orElse(List.of())).build()).orElse(null);
     }
 }

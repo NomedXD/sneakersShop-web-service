@@ -133,10 +133,4 @@ public class    CartController {
             throw new ValidationException(Objects.requireNonNull(result.getFieldError()).getDefaultMessage());
         }
     }
-    /*
-        @PostMapping("/apply_quantity")
-    public ModelAndView applyQuantity(@SessionAttribute(name = EshopConstants.SHOPPING_CART) Cart cart, HttpServletRequest request) {
-        return productService.applyProductsQuantity(cart, request);
-    }
-     */
 }

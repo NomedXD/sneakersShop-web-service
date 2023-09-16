@@ -15,12 +15,15 @@ import java.util.Optional;
 public class OrderConverter {
     private final ProductConverter productConverter;
     private final DiscountCodeConverter discountCodeConverter;
+    private final OrderDetailsConverter orderDetailsConverter;
     private final UserService userService;
 
     @Autowired
-    public OrderConverter(ProductConverter productConverter, DiscountCodeConverter discountCodeConverter, UserService userService) {
+    public OrderConverter(ProductConverter productConverter, DiscountCodeConverter discountCodeConverter,
+                          OrderDetailsConverter orderDetailsConverter, UserService userService) {
         this.productConverter = productConverter;
         this.discountCodeConverter = discountCodeConverter;
+        this.orderDetailsConverter = orderDetailsConverter;
         this.userService = userService;
     }
 
@@ -36,7 +39,7 @@ public class OrderConverter {
                 .shippingCost(o.getShippingCost())
                 .address(o.getAddress())
                 .customerNotes(o.getCustomerNotes())
-                 .orderDetails(order.getOrderDetails())
+                 .orderDetailsDtoList(Optional.ofNullable(order.getOrderDetails()).map(orderDetails -> orderDetails.stream().map(orderDetailsConverter::toDto).toList()).orElse(null))
                 .build()).orElse(null);
         assert order != null;
         if (Optional.ofNullable(order.getDiscountCode()).isPresent()) {
@@ -50,13 +53,13 @@ public class OrderConverter {
                 .id(o.getId())
                 .price(o.getPrice()).price(o.getPrice())
                 .date(o.getDate())
-                .user(userService.getUserById(o.getUserId()))
                 .productList(Optional.ofNullable(o.getProductList()).map(products -> products.stream().map(productConverter::fromDto).toList()).orElse(List.of()))
                 .creditCardNumber(o.getCreditCardNumber())
                 .shippingType(o.getShippingType())
                 .shippingCost(o.getShippingCost())
                 .address(o.getAddress())
                 .customerNotes(o.getCustomerNotes())
+                .orderDetails(Optional.ofNullable(orderDto.getOrderDetailsDtoList()).map(orderDetailsDtos -> orderDetailsDtos.stream().map(orderDetailsConverter::fromDto).toList()).orElse(null))
                 .build()).orElse(null);
         assert orderDto != null;
         if (Optional.ofNullable(orderDto.getDiscountCode()).isPresent()) {

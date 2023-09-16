@@ -82,5 +82,5 @@ public class OrderDto {
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private List<OrderDetails> orderDetails;
+    private List<OrderDetailsDto> orderDetailsDtoList;
 }

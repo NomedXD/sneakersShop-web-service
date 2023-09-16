@@ -88,8 +88,7 @@ public class OrderServiceImpl implements OrderService {
         Cart cart = cartConverter.fromDto(cartDto);
         User user = userConverter.fromDto(userDto);
         preBuildOrder(order, cart, user);
-        user.getOrders().add(orderRepository.save(order));
-        user = userConverter.fromDto(userService.update(userConverter.toDto(user)));
+        orderRepository.save(order);
         cart.clear();
         return new ResponseEntity<>(orderConverter.toDto(order), HttpStatus.OK);
     }

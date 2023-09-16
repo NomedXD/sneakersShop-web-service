@@ -20,7 +20,7 @@ public class OrderProductDtoConverter {
         orderDtoList.forEach(orderDto -> orderDto.getProductList().forEach(productDto -> orderProductDtoList.add(OrderProductDto.builder()
                 .productId(productDto.getId())
                 .productName(productDto.getName())
-                .productImage(productDto.getImage())
+                .productImage(productDto.getImageDtoList().get(0))
                 .productDescription(productDto.getDescription())
                 .categoryId(productDto.getCategoryId())
                 .productPrice(productDto.getPrice())
@@ -71,7 +71,7 @@ public class OrderProductDtoConverter {
                 orderDto.getProductList().add(ProductDto.builder()
                         .id(orderProductDto.getProductId())
                         .name(orderProductDto.getProductName())
-                        .image(orderProductDto.getProductImage())
+                        .imageDtoList(List.of(orderProductDto.getProductImage()))
                         .description(orderProductDto.getProductDescription())
                         .categoryId(orderProductDto.getCategoryId())
                         .price(orderProductDto.getProductPrice()).build());
