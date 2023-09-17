@@ -73,7 +73,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto getCategoryById(Integer id) {
-        return categoryConverter.toDto(categoryRepository.findCategoryById(id).orElseThrow(() -> new NoSuchProductException("Product not found. Id:", id)));
+        return categoryConverter.toDto(categoryRepository.findCategoryById(id).orElseThrow(() -> new NoSuchProductException("Category not found. Id:", id)));
     }
 
     @Override

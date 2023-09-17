@@ -14,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @Entity
 @Table(name = "time_statistic")
-public class Statistic extends BaseEntity{
+public class Statistic extends BaseEntity {
 
     @Column(name = "description")
     private String description;

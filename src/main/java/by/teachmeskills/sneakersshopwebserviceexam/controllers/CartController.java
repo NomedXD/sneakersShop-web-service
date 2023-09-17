@@ -31,7 +31,7 @@ import java.util.Objects;
 @Tag(name = "cart", description = "Cart Endpoints")
 @RestController
 @RequestMapping("/cart")
-public class    CartController {
+public class CartController {
     private final ProductService productService;
     private final OrderService orderService;
     private final AuthService authService;
@@ -59,7 +59,8 @@ public class    CartController {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
     @DeleteMapping("/remove/{productId}")
@@ -90,7 +91,8 @@ public class    CartController {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
     @PutMapping("/{productId}")
@@ -121,7 +123,8 @@ public class    CartController {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
     @PreAuthorize("isAuthenticated()")

@@ -2,7 +2,6 @@ package by.teachmeskills.sneakersshopwebserviceexam.controllers;
 
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.RegistrationRequestWrapperDto;
-import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.RegistrationResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
 import by.teachmeskills.sneakersshopwebserviceexam.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,22 +40,24 @@ public class RegistrationController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Successful registered",
-                    content = @Content(schema = @Schema(implementation = RegistrationResponseWrapperDto.class))
+                    content = @Content(schema = @Schema(implementation = UserDto.class))
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Request RegistrationResponseWrapperDto object validation error - server error"
+                    description = "Request RegistrationResponseWrapperDto object validation error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             ),
             @ApiResponse(
                     responseCode = "401",
-                    description = "User with such credentials already exist"
+                    description = "User with such credentials already exist",
+                    content = @Content(schema = @Schema(implementation = String.class))
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
-    // Здесь и в других контроллерах можно сделать один wrapperDto, но тогда не все поля будут использоваться => больше размер пакета
     @PostMapping
     public ResponseEntity<UserDto> register(@Valid @RequestBody RegistrationRequestWrapperDto requestBody, BindingResult result) {
         if (!result.hasErrors()) {

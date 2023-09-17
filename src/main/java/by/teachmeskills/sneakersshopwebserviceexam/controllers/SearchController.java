@@ -15,7 +15,6 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,7 +37,7 @@ public class SearchController {
 
     @Operation(
             summary = "Get search page",
-            description = "Get search page and it's ptoducts",
+            description = "Get search page and it's products",
             tags = {"search"})
     @ApiResponses(value = {
             @ApiResponse(
@@ -48,10 +47,11 @@ public class SearchController {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
-    @GetMapping
+    @PostMapping
     public ResponseEntity<SearchResponseWrapperDto> getSearchPage(@Valid @RequestBody SearchDto searchDto, BindingResult result,
                                                                   @RequestParam(name = "page") Integer currentPage,
                                                                   @RequestParam(name = "size") Integer pageSize) {
@@ -78,14 +78,16 @@ public class SearchController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Search object validation error - server error"
+                    description = "Search object validation error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
-    @PostMapping
+    @PostMapping("/submit")
     public ResponseEntity<SearchResponseWrapperDto> submitSearch(@Valid @RequestBody SearchDto searchDto, BindingResult result,
                                                                  @RequestParam(name = "size") Integer pageSize) {
         if (!result.hasErrors()) {

@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -56,10 +55,10 @@ public class AccountController {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
-    @PreAuthorize("isAuthenticated()")
     @PutMapping("/update")
     public ResponseEntity<UserDto> updateAccountData(@RequestBody UserDto user) {
         return new ResponseEntity<>(userService.updateAccountData(user, authService.getPrincipal().orElse(null)), HttpStatus.OK);
@@ -77,10 +76,10 @@ public class AccountController {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
-    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<GetAccountResponseWrapperDto> getAccountPage(@RequestParam(name = "page") Integer currentPage,
                                                                        @RequestParam(name = "size") Integer pageSize) {
@@ -102,7 +101,8 @@ public class AccountController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "CSVExportException was thrown - server error"
+                    description = "CSVExportException was thrown - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
     @GetMapping("/export")
@@ -117,14 +117,14 @@ public class AccountController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Orders were imported and created in database"
+                    description = "Orders were imported and created in database",
+                    content = @Content(schema = @Schema(implementation = OrderDto.class))
             ),
             @ApiResponse(
                     responseCode = "400",
                     description = "CSVImportException was thrown - server error"
             )
     })
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/import")
     public ResponseEntity<List<OrderDto>> importUserOrders(@RequestParam("file") MultipartFile file) throws CSVImportException {
         return userService.importUserOrders(file);

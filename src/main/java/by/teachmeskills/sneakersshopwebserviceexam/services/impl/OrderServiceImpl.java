@@ -13,7 +13,6 @@ import by.teachmeskills.sneakersshopwebserviceexam.dto.converters.UserConverter;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.NoSuchOrderException;
 import by.teachmeskills.sneakersshopwebserviceexam.repositories.OrderRepository;
 import by.teachmeskills.sneakersshopwebserviceexam.services.OrderService;
-import by.teachmeskills.sneakersshopwebserviceexam.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
@@ -30,17 +29,14 @@ import java.util.Optional;
 @Service
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
-
-    private final UserService userService;
     private final OrderConverter orderConverter;
     private final UserConverter userConverter;
     private final CartConverter cartConverter;
 
     @Autowired
-    public OrderServiceImpl(OrderRepository orderRepository, UserService userService, @Lazy OrderConverter orderConverter,
+    public OrderServiceImpl(OrderRepository orderRepository, @Lazy OrderConverter orderConverter,
                             @Lazy UserConverter userConverter, @Lazy CartConverter cartConverter) {
         this.orderRepository = orderRepository;
-        this.userService = userService;
         this.orderConverter = orderConverter;
         this.userConverter = userConverter;
         this.cartConverter = cartConverter;
@@ -104,8 +100,6 @@ public class OrderServiceImpl implements OrderService {
         if(Optional.ofNullable(order.getOrderDetails()).isEmpty()){
             order.setOrderDetails(new ArrayList<>());
         }
-        cart.getProductQuantities().forEach((productId, productQuantity)-> {
-            order.getOrderDetails().add(OrderDetails.builder().order(order).productId(productId).productQuantity(productQuantity).build());
-        });
+        cart.getProductQuantities().forEach((productId, productQuantity)-> order.getOrderDetails().add(OrderDetails.builder().order(order).productId(productId).productQuantity(productQuantity).build()));
     }
 }

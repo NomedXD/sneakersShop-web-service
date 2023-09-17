@@ -2,6 +2,7 @@ package by.teachmeskills.sneakersshopwebserviceexam.controllers;
 
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.CategoryDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.ProductDto;
+import by.teachmeskills.sneakersshopwebserviceexam.enums.EshopConstants;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVExportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVImportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
@@ -60,22 +61,15 @@ public class CategoryController {
                     content = @Content(schema = @Schema(implementation = CategoryDto.class))
             ),
             @ApiResponse(
-                    responseCode = "400",
-                    description = "Category object validation error - server error"
-            ),
-            @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<CategoryDto> createCategory(@Valid @RequestBody CategoryDto categoryDto, BindingResult result) {
-        if (!result.hasErrors()) {
-            return new ResponseEntity<>(categoryService.create(categoryDto), HttpStatus.CREATED);
-        } else {
-            throw new ValidationException(Objects.requireNonNull(result.getFieldError()).getDefaultMessage());
-        }
+    public ResponseEntity<CategoryDto> createCategory(@RequestBody CategoryDto categoryDto) {
+        return new ResponseEntity<>(categoryService.create(categoryDto), HttpStatus.CREATED);
     }
 
     @Operation(
@@ -90,7 +84,8 @@ public class CategoryController {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
     @GetMapping("/all")
@@ -110,11 +105,13 @@ public class CategoryController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Category object validation error - server error"
+                    description = "Category object validation error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
     @PreAuthorize("hasRole('ADMIN')")
@@ -138,7 +135,8 @@ public class CategoryController {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
     @PreAuthorize("hasRole('ADMIN')")
@@ -159,14 +157,16 @@ public class CategoryController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Category were not found"
+                    description = "Category were not found",
+                    content = @Content(schema = @Schema(implementation = String.class))
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
-    @GetMapping("/{id}")
+    @GetMapping("/cid/{id}")
     public ResponseEntity<CategoryDto> getCategoryById(@PathVariable Integer id) {
         return Optional.ofNullable(categoryService.getCategoryById(id))
                 .map(category -> new ResponseEntity<>(category, HttpStatus.OK))
@@ -185,14 +185,19 @@ public class CategoryController {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
     @GetMapping("/{categoryId}")
     public ResponseEntity<List<ProductDto>> getCategoryPage(@PathVariable(name = "categoryId") Integer categoryId,
                                                             @RequestParam(name = "page", required = false) Integer currentPage,
                                                             @RequestParam(name = "size", required = false) Integer pageSize) {
-        return productService.getPaginatedProductsByCategoryId(categoryId, currentPage, pageSize);
+        if (Optional.ofNullable(currentPage).isPresent() && Optional.ofNullable(pageSize).isPresent()) {
+            return productService.getPaginatedProductsByCategoryId(categoryId, currentPage, pageSize);
+        } else {
+            return productService.getPaginatedProductsByCategoryId(categoryId, 1, EshopConstants.MIN_PAGE_SIZE);
+        }
     }
 
     @Operation(
@@ -206,10 +211,10 @@ public class CategoryController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "CSVExportException was thrown - server error"
+                    description = "CSVExportException was thrown - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/export")
     public ResponseEntity<InputStreamResource> exportCategories() throws CSVExportException {
         return categoryService.exportCategories();
@@ -222,14 +227,15 @@ public class CategoryController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Categories were imported and created in database"
+                    description = "Categories were imported and created in database",
+                    content = @Content(schema = @Schema(implementation = CategoryDto.class))
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "CSVImportException was thrown - server error"
+                    description = "CSVImportException was thrown - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/import")
     public ResponseEntity<List<CategoryDto>> importCategories(@RequestParam("file") MultipartFile file) throws CSVImportException {
         return categoryService.importCategories(file);

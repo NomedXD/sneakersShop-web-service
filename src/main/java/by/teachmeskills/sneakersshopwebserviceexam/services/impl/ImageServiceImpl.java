@@ -1,7 +1,6 @@
 package by.teachmeskills.sneakersshopwebserviceexam.services.impl;
 
 
-import by.teachmeskills.sneakersshopwebserviceexam.domain.Image;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.ImageDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.converters.ImageConverter;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.NoSuchImageException;
@@ -11,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ImageServiceImpl implements ImageService {

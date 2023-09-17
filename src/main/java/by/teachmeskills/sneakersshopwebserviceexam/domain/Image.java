@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @Entity
 @Table(name = "images")
-public class Image extends BaseEntity{
+public class Image extends BaseEntity {
 
     @NotNull(message = "Field is null validation error")
     @Size(max = 45, message = "Out of validation bounds")

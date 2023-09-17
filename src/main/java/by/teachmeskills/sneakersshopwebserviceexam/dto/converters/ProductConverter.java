@@ -2,7 +2,6 @@ package by.teachmeskills.sneakersshopwebserviceexam.dto.converters;
 
 
 import by.teachmeskills.sneakersshopwebserviceexam.domain.Product;
-import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.ImageDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.ProductDto;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.NoSuchOrderException;
 import by.teachmeskills.sneakersshopwebserviceexam.repositories.CategoryRepository;
@@ -11,6 +10,7 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Component
@@ -30,7 +30,8 @@ public class ProductConverter {
     public ProductDto toDto(Product product) {
         return Optional.ofNullable(product).map(p -> ProductDto.builder()
                 .id(p.getId())
-                .name(p.getName()).imageDtoList(p.getImages().stream().map(imageConverter::toDto).toList())
+                .name(p.getName())
+                .imageDtoList(Optional.ofNullable(p.getImages()).map(images -> images.stream().map(imageConverter::toDto).toList()).orElse(new ArrayList<>()))
                 .description(p.getDescription())
                 .price(p.getPrice())
                 .categoryId(p.getCategory().getId())
@@ -40,7 +41,8 @@ public class ProductConverter {
     public Product fromDto(ProductDto productDto) {
         return Optional.ofNullable(productDto).map(p -> Product.builder()
                 .id(p.getId())
-                .name(p.getName()).images(productDto.getImageDtoList().stream().map(ImageDto::getId).map(imageService::getImageById).map(imageConverter::fromDto).toList())
+                .name(p.getName())
+                .images(Optional.ofNullable(productDto.getImageDtoList()).map(imageDtos -> imageDtos.stream().map(imageConverter::fromDto).toList()).orElse(new ArrayList<>()))
                 .description(p.getDescription())
                 .price(p.getPrice())
                 .category(categoryRepository.findCategoryById(p.getCategoryId()).orElseThrow((() -> new NoSuchOrderException("Category not found. Id:", p.getCategoryId()))))

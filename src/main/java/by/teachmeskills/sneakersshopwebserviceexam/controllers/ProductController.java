@@ -56,22 +56,14 @@ public class ProductController {
                     content = @Content(schema = @Schema(implementation = ProductDto.class))
             ),
             @ApiResponse(
-                    responseCode = "400",
-                    description = "Product object validation error - server error"
-            ),
-            @ApiResponse(
                     responseCode = "500",
                     description = "Database error - server error"
             )
     })
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<ProductDto> createProduct(@Valid @RequestBody ProductDto productDto, BindingResult result) {
-        if (!result.hasErrors()) {
-            return new ResponseEntity<>(productService.create(productDto), HttpStatus.CREATED);
-        } else {
-            throw new ValidationException(Objects.requireNonNull(result.getFieldError()).getDefaultMessage());
-        }
+    public ResponseEntity<ProductDto> createProduct(@RequestBody ProductDto productDto) {
+        return new ResponseEntity<>(productService.create(productDto), HttpStatus.CREATED);
     }
 
     @Operation(
@@ -221,10 +213,10 @@ public class ProductController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "CSVExportException was thrown - server error"
+                    description = "CSVExportException was thrown - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/export/{categoryId}")
     public ResponseEntity<InputStreamResource> exportCategoryProducts(@PathVariable Integer categoryId) throws CSVExportException {
         return productService.exportCategoryProducts(categoryId);
@@ -237,14 +229,15 @@ public class ProductController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Products were imported and created in database"
+                    description = "Products were imported and created in database",
+                    content = @Content(schema = @Schema(implementation = ProductDto.class))
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "CSVImportException was thrown - server error"
+                    description = "CSVImportException was thrown - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/import")
     public ResponseEntity<List<ProductDto>> importCategoryProducts(@RequestParam("file") MultipartFile file) throws CSVImportException {
         return productService.importCategoryProducts(file);

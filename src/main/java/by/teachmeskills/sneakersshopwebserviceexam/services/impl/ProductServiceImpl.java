@@ -99,7 +99,6 @@ public class ProductServiceImpl implements ProductService {
         return productConverter.toDto(productRepository.findProductById(id));
     }
 
-    // Complex controllers reference
     @Override
     public Long getCountOfAllProducts() {
         return productRepository.count();

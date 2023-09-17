@@ -30,7 +30,7 @@ public class ProductDto {
     @CsvBindByName
     private String name;
 
-    @NotNull(message = "Images field in productDto is null")
+    @NotNull(message = "ImageDtoList field in productDto is null")
     private List<ImageDto> imageDtoList;
 
     @NotNull(message = "Description field in productDto is null")

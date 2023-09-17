@@ -8,7 +8,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -17,8 +16,6 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -49,13 +46,4 @@ public class Product extends BaseEntity {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Order> orders;
-
-    public Image getPrimeImage() {
-        return images.stream().filter(image -> Optional.ofNullable(image.getIsPrime()).orElse(true).equals(true))
-                .findFirst().orElse(null);
-    }
-
-    public List<Image> getNonPrimeImages() {
-        return images.stream().filter(image -> Optional.ofNullable(image.getIsPrime()).orElse(true).equals(false)).collect(Collectors.toList());
-    }
 }

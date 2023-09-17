@@ -1,9 +1,7 @@
 package by.teachmeskills.sneakersshopwebserviceexam.dto.converters;
 
 import by.teachmeskills.sneakersshopwebserviceexam.domain.DiscountCode;
-import by.teachmeskills.sneakersshopwebserviceexam.domain.Image;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.DiscountCodeDto;
-import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.ImageDto;
 import by.teachmeskills.sneakersshopwebserviceexam.repositories.DiscountCodeRepository;
 import by.teachmeskills.sneakersshopwebserviceexam.services.DiscountCodeService;
 import lombok.Data;

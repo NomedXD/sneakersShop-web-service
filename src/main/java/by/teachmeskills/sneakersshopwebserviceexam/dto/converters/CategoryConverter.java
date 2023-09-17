@@ -1,7 +1,6 @@
 package by.teachmeskills.sneakersshopwebserviceexam.dto.converters;
 
 import by.teachmeskills.sneakersshopwebserviceexam.domain.Category;
-import by.teachmeskills.sneakersshopwebserviceexam.domain.Image;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.CategoryDto;
 import by.teachmeskills.sneakersshopwebserviceexam.services.ImageService;
 import lombok.Data;
@@ -9,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 @Data
@@ -31,18 +28,20 @@ public class CategoryConverter {
     public CategoryDto toDto(Category category) {
         return Optional.ofNullable(category).map(c -> CategoryDto.builder()
                 .id(c.getId())
-                .name(c.getName()).image(Optional.ofNullable(c.getPrimeCategoryImage()).map(imageConverter::toDto).orElse(null))
+                .name(c.getName())
+                .imageDtoList(Optional.ofNullable(category.getImages()).map(products -> products.stream().map(imageConverter::toDto).toList()).orElse(new ArrayList<>()))
                 .sometext(c.getSometext())
-                .productList(Optional.ofNullable(c.getProductList()).map(products -> products.stream().map(productConverter::toDto).toList()).orElse(List.of()))
+                .productList(Optional.ofNullable(c.getProductList()).map(products -> products.stream().map(productConverter::toDto).toList()).orElse(new ArrayList<>()))
                 .build()).orElse(null);
     }
 
     public Category fromDto(CategoryDto categoryDto) {
         return Optional.ofNullable(categoryDto).map(c -> Category.builder()
                 .id(c.getId())
-                .name(c.getName()).images(new ArrayList<>(Collections.singletonList(imageConverter.fromDto(imageService.getImageById(c.getImage().getId())))))
+                .name(c.getName())
+                .images(Optional.ofNullable(categoryDto.getImageDtoList()).map(imageDtos -> imageDtos.stream().map(imageConverter::fromDto).toList()).orElse(new ArrayList<>()))
                 .sometext(c.getSometext())
-                .productList(Optional.ofNullable(c.getProductList()).map(products -> products.stream().map(productConverter::fromDto).toList()).orElse(List.of()))
+                .productList(Optional.ofNullable(c.getProductList()).map(products -> products.stream().map(productConverter::fromDto).toList()).orElse(new ArrayList<>()))
                 .build()).orElse(null);
     }
 }

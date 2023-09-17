@@ -2,14 +2,11 @@ package by.teachmeskills.sneakersshopwebserviceexam.services.impl;
 
 import by.teachmeskills.sneakersshopwebserviceexam.domain.Role;
 import by.teachmeskills.sneakersshopwebserviceexam.domain.User;
-import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.CategoryDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderProductDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.GetAccountResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.LoginResponseWrapperDto;
-import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.RegistrationResponseWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
-import by.teachmeskills.sneakersshopwebserviceexam.dto.converters.CategoryConverter;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.converters.UserConverter;
 import by.teachmeskills.sneakersshopwebserviceexam.enums.EshopConstants;
 import by.teachmeskills.sneakersshopwebserviceexam.enums.RequestParamsEnum;
@@ -61,15 +58,21 @@ public class UserServiceImpl implements UserService {
     private final OrderService orderService;
     private final UserConverter userConverter;
     private final PasswordEncoder encoder;
+    private final OrderProductDtoConverter orderProductDtoConverter;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, CategoryService categoryService,
-                           @Lazy OrderService orderService, @Lazy UserConverter userConverter, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository,
+                           CategoryService categoryService,
+                           @Lazy OrderService orderService,
+                           @Lazy UserConverter userConverter,
+                           PasswordEncoder passwordEncoder,
+                           OrderProductDtoConverter orderProductDtoConverter) {
         this.userRepository = userRepository;
         this.categoryService = categoryService;
         this.orderService = orderService;
         this.userConverter = userConverter;
         this.encoder = passwordEncoder;
+        this.orderProductDtoConverter = orderProductDtoConverter;
     }
 
     @Override
@@ -166,7 +169,7 @@ public class UserServiceImpl implements UserService {
     private ResponseEntity<InputStreamResource> writeCsv(Integer userId) throws CSVExportException {
         List<OrderDto> orderDtoList = userConverter.toDto(userRepository.findUserById(userId).
                 orElseThrow(() -> new NoSuchUserException("No user with id " + userId))).getOrders();
-        List<OrderProductDto> orderProductDtoList = OrderProductDtoConverter.convertInto(orderDtoList);
+        List<OrderProductDto> orderProductDtoList = orderProductDtoConverter.convertInto(orderDtoList);
         try (Writer ordersProductsWriter = Files.newBufferedWriter(Paths.get(EshopConstants.resourcesFilePath + "user_" + userId + "_orders_products.csv"))) {
             StatefulBeanToCsv<OrderProductDto> ordersProductsSbc = new StatefulBeanToCsvBuilder<OrderProductDto>(ordersProductsWriter)
                     .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
@@ -200,7 +203,7 @@ public class UserServiceImpl implements UserService {
                         .withIgnoreLeadingWhiteSpace(true)
                         .build();
                 List<OrderProductDto> orderProductDtoList = ordersProductsCtb.parse();
-                return OrderProductDtoConverter.convertFrom(orderProductDtoList);
+                return orderProductDtoConverter.convertFrom(orderProductDtoList);
             } catch (IOException e) {
                 throw new CSVImportException(EshopConstants.errorOrdersImportMessage);
             }
