@@ -78,6 +78,10 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryDto> getPaginatedCategories(Integer currentPage, Integer pageSize) {
+        if (Optional.ofNullable(currentPage).isEmpty() || Optional.ofNullable(pageSize).isEmpty()) {
+            currentPage = 1;
+            pageSize = EshopConstants.MIN_PAGE_SIZE;
+        }
         Pageable pageable = PageRequest.of((currentPage - 1), pageSize, Sort.by("name"));
         return categoryRepository.findAll(pageable).getContent().stream().map(categoryConverter::toDto).toList();
     }

@@ -2,7 +2,6 @@ package by.teachmeskills.sneakersshopwebserviceexam.controllers;
 
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.CategoryDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.ProductDto;
-import by.teachmeskills.sneakersshopwebserviceexam.enums.EshopConstants;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVExportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVImportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
@@ -193,11 +192,7 @@ public class CategoryController {
     public ResponseEntity<List<ProductDto>> getCategoryPage(@PathVariable(name = "categoryId") Integer categoryId,
                                                             @RequestParam(name = "page", required = false) Integer currentPage,
                                                             @RequestParam(name = "size", required = false) Integer pageSize) {
-        if (Optional.ofNullable(currentPage).isPresent() && Optional.ofNullable(pageSize).isPresent()) {
-            return productService.getPaginatedProductsByCategoryId(categoryId, currentPage, pageSize);
-        } else {
-            return productService.getPaginatedProductsByCategoryId(categoryId, 1, EshopConstants.MIN_PAGE_SIZE);
-        }
+        return productService.getPaginatedProductsByCategoryId(categoryId, currentPage, pageSize);
     }
 
     @Operation(

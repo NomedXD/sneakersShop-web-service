@@ -3,7 +3,6 @@ package by.teachmeskills.sneakersshopwebserviceexam.controllers;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.UserDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.GetAccountResponseWrapperDto;
-import by.teachmeskills.sneakersshopwebserviceexam.enums.EshopConstants;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVExportException;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.CSVImportException;
 import by.teachmeskills.sneakersshopwebserviceexam.services.AuthService;
@@ -28,7 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 @Tag(name = "account", description = "Account Endpoints")
 @RestController
@@ -81,13 +79,9 @@ public class AccountController {
             )
     })
     @GetMapping
-    public ResponseEntity<GetAccountResponseWrapperDto> getAccountPage(@RequestParam(name = "page") Integer currentPage,
-                                                                       @RequestParam(name = "size") Integer pageSize) {
-        if (Optional.ofNullable(currentPage).isPresent() && Optional.ofNullable(pageSize).isPresent()) {
-            return userService.getAccount(authService.getPrincipal().orElse(null), currentPage, pageSize);
-        } else {
-            return userService.getAccount(authService.getPrincipal().orElse(null), 1, EshopConstants.MIN_PAGE_SIZE);
-        }
+    public ResponseEntity<GetAccountResponseWrapperDto> getAccountPage(@RequestParam(name = "page", required = false) Integer currentPage,
+                                                                       @RequestParam(name = "size", required = false) Integer pageSize) {
+        return userService.getAccount(authService.getPrincipal().orElse(null), currentPage, pageSize);
     }
 
     @Operation(

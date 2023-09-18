@@ -97,6 +97,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<GetAccountResponseWrapperDto> getAccount(UserDto userDto, Integer currentPage, Integer pageSize) {
+        if (Optional.ofNullable(currentPage).isEmpty() || Optional.ofNullable(pageSize).isEmpty()) {
+            currentPage = 1;
+            pageSize = EshopConstants.MIN_PAGE_SIZE;
+        }
         return new ResponseEntity<>(new GetAccountResponseWrapperDto(orderService.getPaginatedOrders(currentPage, pageSize, userDto.getId()), userDto), HttpStatus.OK);
     }
 

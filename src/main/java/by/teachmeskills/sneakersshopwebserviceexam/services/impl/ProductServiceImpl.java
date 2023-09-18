@@ -111,6 +111,10 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ResponseEntity<SearchResponseWrapperDto> getSearchedPaginatedProducts(SearchDto searchDto, Integer currentPage, Integer pageSize) {
+        if (Optional.ofNullable(currentPage).isEmpty() || Optional.ofNullable(pageSize).isEmpty()) {
+            currentPage = 1;
+            pageSize = EshopConstants.MIN_PAGE_SIZE;
+        }
         Search search = Optional.ofNullable(searchDto).map(searchConverter::fromDto).orElse(null);
         Long count;
         List<Product> productList;
@@ -137,6 +141,10 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ResponseEntity<List<ProductDto>> getPaginatedProductsByCategoryId(Integer categoryId, Integer currentPage, Integer pageSize) {
+        if (Optional.ofNullable(currentPage).isEmpty() || Optional.ofNullable(pageSize).isEmpty()) {
+            currentPage = 1;
+            pageSize = EshopConstants.MIN_PAGE_SIZE;
+        }
         Pageable pageable = PageRequest.of((currentPage - 1), pageSize);
         return new ResponseEntity<>(productRepository.findAllByCategoryIdOrderByName(categoryId, pageable).stream().map(productConverter::toDto).toList(), HttpStatus.OK);
     }

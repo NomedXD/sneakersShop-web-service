@@ -1,7 +1,6 @@
 package by.teachmeskills.sneakersshopwebserviceexam.controllers;
 
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.CategoryDto;
-import by.teachmeskills.sneakersshopwebserviceexam.enums.EshopConstants;
 import by.teachmeskills.sneakersshopwebserviceexam.services.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 
 @Tag(name = "catalog", description = "Home Endpoints")
 @RestController
@@ -51,10 +49,6 @@ public class HomeController {
     @GetMapping
     public ResponseEntity<List<CategoryDto>> getShopPage(@RequestParam(name = "page", required = false) Integer currentPage,
                                                          @RequestParam(name = "size", required = false) Integer pageSize) {
-        if (Optional.ofNullable(currentPage).isPresent() && Optional.ofNullable(pageSize).isPresent()) {
-            return new ResponseEntity<>(categoryService.getPaginatedCategories(currentPage, pageSize), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(categoryService.getPaginatedCategories(1, EshopConstants.MIN_PAGE_SIZE), HttpStatus.OK);
-        }
+        return new ResponseEntity<>(categoryService.getPaginatedCategories(currentPage, pageSize), HttpStatus.OK);
     }
 }

@@ -2,7 +2,6 @@ package by.teachmeskills.sneakersshopwebserviceexam.controllers;
 
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.SearchDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.SearchResponseWrapperDto;
-import by.teachmeskills.sneakersshopwebserviceexam.enums.EshopConstants;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
 import by.teachmeskills.sneakersshopwebserviceexam.services.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Objects;
-import java.util.Optional;
 
 @Tag(name = "search", description = "Search Endpoints")
 @RestController
@@ -53,14 +51,10 @@ public class SearchController {
     })
     @PostMapping
     public ResponseEntity<SearchResponseWrapperDto> getSearchPage(@Valid @RequestBody SearchDto searchDto, BindingResult result,
-                                                                  @RequestParam(name = "page") Integer currentPage,
-                                                                  @RequestParam(name = "size") Integer pageSize) {
+                                                                  @RequestParam(name = "page", required = false) Integer currentPage,
+                                                                  @RequestParam(name = "size", required = false) Integer pageSize) {
         if (!result.hasErrors()) {
-            if (Optional.ofNullable(currentPage).isPresent() && Optional.ofNullable(pageSize).isPresent()) {
-                return productService.getSearchedPaginatedProducts(searchDto, currentPage, pageSize);
-            } else {
-                return productService.getSearchedPaginatedProducts(searchDto, 1, EshopConstants.MIN_PAGE_SIZE);
-            }
+            return productService.getSearchedPaginatedProducts(searchDto, currentPage, pageSize);
         } else {
             throw new ValidationException(Objects.requireNonNull(result.getFieldError()).getDefaultMessage());
         }
