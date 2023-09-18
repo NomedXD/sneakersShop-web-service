@@ -4,6 +4,9 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -21,7 +24,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "users")
-public class User extends BaseEntity{
+public class User extends BaseEntity {
 
     @Column(name = "mail", unique = true)
     private String mail;
@@ -37,9 +40,6 @@ public class User extends BaseEntity{
 
     @Column(name = "date")
     private LocalDate date;
-
-    @Column(name = "balance")
-    private Float currentBalance;
 
     @Column(name = "mobile")
     private String mobile;
@@ -57,4 +57,10 @@ public class User extends BaseEntity{
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Order> orders;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "users_roles",
+            joinColumns = {@JoinColumn(name = "user_id")},
+            inverseJoinColumns = {@JoinColumn(name = "role_id")})
+    private List<Role> roles;
 }

@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,21 +56,14 @@ public class ProductController {
                     content = @Content(schema = @Schema(implementation = ProductDto.class))
             ),
             @ApiResponse(
-                    responseCode = "400",
-                    description = "Product object validation error - server error"
-            ),
-            @ApiResponse(
                     responseCode = "500",
                     description = "Database error - server error"
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<ProductDto> createProduct(@Valid @RequestBody ProductDto productDto, BindingResult result) {
-        if (!result.hasErrors()) {
-            return new ResponseEntity<>(productService.create(productDto), HttpStatus.CREATED);
-        } else {
-            throw new ValidationException(Objects.requireNonNull(result.getFieldError()).getDefaultMessage());
-        }
+    public ResponseEntity<ProductDto> createProduct(@RequestBody ProductDto productDto) {
+        return new ResponseEntity<>(productService.create(productDto), HttpStatus.CREATED);
     }
 
     @Operation(
@@ -111,6 +105,7 @@ public class ProductController {
                     description = "Database error - server error"
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping
     public ResponseEntity<ProductDto> updateProduct(@Valid @RequestBody ProductDto productDto, BindingResult result) {
         if (!result.hasErrors()) {
@@ -134,6 +129,7 @@ public class ProductController {
                     description = "Database error - server error"
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/remove/{id}")
     public void deleteProduct(@PathVariable Integer id) {
         productService.delete(id);
@@ -200,6 +196,7 @@ public class ProductController {
                     description = "Database error - server error"
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/allByOrder/{id}")
     public ResponseEntity<List<ProductDto>> getOrderProducts(@PathVariable Integer id) {
         return new ResponseEntity<>(productService.getOrderProducts(id), HttpStatus.OK);
@@ -216,7 +213,8 @@ public class ProductController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "CSVExportException was thrown - server error"
+                    description = "CSVExportException was thrown - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
     @GetMapping("/export/{categoryId}")
@@ -231,11 +229,13 @@ public class ProductController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Products were imported and created in database"
+                    description = "Products were imported and created in database",
+                    content = @Content(schema = @Schema(implementation = ProductDto.class))
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "CSVImportException was thrown - server error"
+                    description = "CSVImportException was thrown - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
     @PostMapping("/import")

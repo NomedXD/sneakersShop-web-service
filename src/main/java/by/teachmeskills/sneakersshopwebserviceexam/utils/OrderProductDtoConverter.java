@@ -1,22 +1,35 @@
 package by.teachmeskills.sneakersshopwebserviceexam.utils;
 
+import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.DiscountCodeDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderProductDto;
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.ProductDto;
+import by.teachmeskills.sneakersshopwebserviceexam.services.DiscountCodeService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
+@Component
 public class OrderProductDtoConverter {
-    public static List<OrderProductDto> convertInto(List<OrderDto> orderDtoList) {
+    private final DiscountCodeService discountCodeService;
+
+    @Autowired
+    public OrderProductDtoConverter(DiscountCodeService discountCodeService) {
+        this.discountCodeService = discountCodeService;
+    }
+
+    public List<OrderProductDto> convertInto(List<OrderDto> orderDtoList) {
         List<OrderProductDto> orderProductDtoList = new ArrayList<>();
         orderDtoList.forEach(orderDto -> orderDto.getProductList().forEach(productDto -> orderProductDtoList.add(OrderProductDto.builder()
                 .productId(productDto.getId())
                 .productName(productDto.getName())
-                .productImage(productDto.getImage())
+                .productImage(productDto.getImageDtoList().get(0))
                 .productDescription(productDto.getDescription())
                 .categoryId(productDto.getCategoryId())
                 .productPrice(productDto.getPrice())
@@ -27,17 +40,17 @@ public class OrderProductDtoConverter {
                 .creditCardNumber(orderDto.getCreditCardNumber())
                 .shippingType(orderDto.getShippingType())
                 .shippingCost(orderDto.getShippingCost())
-                .code(orderDto.getCode())
+                .discountCode(Optional.ofNullable(orderDto.getDiscountCode()).map(DiscountCodeDto::getName).orElse(null))
                 .address(orderDto.getAddress())
                 .customerNotes(orderDto.getCustomerNotes()).build())));
         return orderProductDtoList;
     }
 
-    public static List<OrderDto> convertFrom(List<OrderProductDto> orderProductDtoList) {
+    public List<OrderDto> convertFrom(List<OrderProductDto> orderProductDtoList) {
         return createOrderDtoList(orderProductDtoList);
     }
 
-    private static List<OrderDto> createOrderDtoList(List<OrderProductDto> orderProductDtoList) {
+    private List<OrderDto> createOrderDtoList(List<OrderProductDto> orderProductDtoList) {
         List<OrderDto> orderDtoList = new ArrayList<>();
         Set<Integer> orderIdSet = new HashSet<>();
         orderProductDtoList.forEach(orderProductDto -> {
@@ -52,7 +65,7 @@ public class OrderProductDtoConverter {
                         .creditCardNumber(orderProductDto.getCreditCardNumber())
                         .shippingType(orderProductDto.getShippingType())
                         .shippingCost(orderProductDto.getShippingCost())
-                        .code(orderProductDto.getCode())
+                        .discountCode(Optional.ofNullable(orderProductDto.getDiscountCode()).map(discountCodeService::getDiscountCodeByName).orElse(null))
                         .address(orderProductDto.getAddress())
                         .customerNotes(orderProductDto.getCustomerNotes()).build());
             }
@@ -61,13 +74,13 @@ public class OrderProductDtoConverter {
         return orderDtoList;
     }
 
-    private static void addProductsToOrders(List<OrderProductDto> orderProductDtoList, List<OrderDto> orderDtoList) {
+    private void addProductsToOrders(List<OrderProductDto> orderProductDtoList, List<OrderDto> orderDtoList) {
         orderProductDtoList.forEach(orderProductDto -> orderDtoList.forEach(orderDto -> {
             if (Objects.equals(orderProductDto.getOrderId(), orderDto.getId())) {
                 orderDto.getProductList().add(ProductDto.builder()
                         .id(orderProductDto.getProductId())
                         .name(orderProductDto.getProductName())
-                        .image(orderProductDto.getProductImage())
+                        .imageDtoList(List.of(orderProductDto.getProductImage()))
                         .description(orderProductDto.getProductDescription())
                         .categoryId(orderProductDto.getCategoryId())
                         .price(orderProductDto.getProductPrice()).build());

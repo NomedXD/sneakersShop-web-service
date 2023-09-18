@@ -3,9 +3,9 @@ package by.teachmeskills.sneakersshopwebserviceexam.domain;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,14 +26,14 @@ public class Category extends BaseEntity {
     @Column(name = "name")
     private String name;
 
-    @OneToOne(optional = false, orphanRemoval = true)
-    @JoinColumn(name = "image_id")
-    private Image image;
+    @OneToMany(orphanRemoval = true, fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    @JoinColumn(name = "category_id")
+    private List<Image> images;
 
     @Column(name = "sometext")
     private String sometext;
 
-    @OneToMany(mappedBy = "category", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "category", orphanRemoval = true, cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.DETACH})
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private List<Product> productList;

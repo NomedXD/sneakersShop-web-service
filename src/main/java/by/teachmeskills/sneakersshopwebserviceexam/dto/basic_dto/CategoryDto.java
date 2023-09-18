@@ -1,8 +1,6 @@
 package by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto;
 
-import by.teachmeskills.sneakersshopwebserviceexam.utils.ImageCsvConverter;
 import com.opencsv.bean.CsvBindByName;
-import com.opencsv.bean.CsvCustomBindByName;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -31,9 +29,8 @@ public class CategoryDto {
     @CsvBindByName
     private String name;
 
-    @NotNull(message = "Id field in categoryDto is null")
-    @CsvCustomBindByName(converter = ImageCsvConverter.class)
-    private ImageDto image;
+    @NotNull(message = "ImageDtoList field in categoryDro is null")
+    private List<ImageDto> imageDtoList;
 
     @NotNull(message = "Some text field in categoryDto is null")
     @Size(max = 45, message = "Out of bounds categoryDto some text")

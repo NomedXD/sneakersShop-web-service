@@ -1,7 +1,12 @@
 package by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto;
 
+import by.teachmeskills.sneakersshopwebserviceexam.domain.OrderDetails;
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvDate;
+import jakarta.annotation.Nullable;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -10,6 +15,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
@@ -60,10 +66,9 @@ public class OrderDto {
     @CsvBindByName
     private Float shippingCost;
 
-    @NotNull(message = "Code field in orderDto is null")
-    @Size(max = 10, message = "Out of bounds orderDto code")
+    @Nullable
     @CsvBindByName
-    private String code;
+    private DiscountCodeDto discountCode;
 
     @NotNull(message = "Address field in orderDto is null")
     @Size(max = 100, message = "Out of bounds orderDto address")
@@ -74,4 +79,8 @@ public class OrderDto {
     @Size(max = 1000, message = "Out of bounds orderDto customer notes")
     @CsvBindByName
     private String customerNotes;
+
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<OrderDetailsDto> orderDetailsDtoList;
 }

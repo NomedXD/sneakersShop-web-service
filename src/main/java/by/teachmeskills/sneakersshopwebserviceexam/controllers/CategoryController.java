@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -59,21 +60,15 @@ public class CategoryController {
                     content = @Content(schema = @Schema(implementation = CategoryDto.class))
             ),
             @ApiResponse(
-                    responseCode = "400",
-                    description = "Category object validation error - server error"
-            ),
-            @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<CategoryDto> createCategory(@Valid @RequestBody CategoryDto categoryDto, BindingResult result) {
-        if (!result.hasErrors()) {
-            return new ResponseEntity<>(categoryService.create(categoryDto), HttpStatus.CREATED);
-        } else {
-            throw new ValidationException(Objects.requireNonNull(result.getFieldError()).getDefaultMessage());
-        }
+    public ResponseEntity<CategoryDto> createCategory(@RequestBody CategoryDto categoryDto) {
+        return new ResponseEntity<>(categoryService.create(categoryDto), HttpStatus.CREATED);
     }
 
     @Operation(
@@ -88,7 +83,8 @@ public class CategoryController {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
     @GetMapping("/all")
@@ -108,13 +104,16 @@ public class CategoryController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Category object validation error - server error"
+                    description = "Category object validation error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping
     public ResponseEntity<CategoryDto> updateCategory(@Valid @RequestBody CategoryDto categoryDto, BindingResult result) {
         if (!result.hasErrors()) {
@@ -135,9 +134,11 @@ public class CategoryController {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/remove/{id}")
     public void deleteCategory(@PathVariable Integer id) {
         categoryService.delete(id);
@@ -155,14 +156,16 @@ public class CategoryController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Category were not found"
+                    description = "Category were not found",
+                    content = @Content(schema = @Schema(implementation = String.class))
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
-    @GetMapping("/{id}")
+    @GetMapping("/cid/{id}")
     public ResponseEntity<CategoryDto> getCategoryById(@PathVariable Integer id) {
         return Optional.ofNullable(categoryService.getCategoryById(id))
                 .map(category -> new ResponseEntity<>(category, HttpStatus.OK))
@@ -181,7 +184,8 @@ public class CategoryController {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
     @GetMapping("/{categoryId}")
@@ -202,7 +206,8 @@ public class CategoryController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "CSVExportException was thrown - server error"
+                    description = "CSVExportException was thrown - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
     @GetMapping("/export")
@@ -217,11 +222,13 @@ public class CategoryController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Categories were imported and created in database"
+                    description = "Categories were imported and created in database",
+                    content = @Content(schema = @Schema(implementation = CategoryDto.class))
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "CSVImportException was thrown - server error"
+                    description = "CSVImportException was thrown - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
     @PostMapping("/import")

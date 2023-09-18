@@ -1,5 +1,7 @@
 package by.teachmeskills.sneakersshopwebserviceexam.domain;
 
+import jakarta.annotation.Nullable;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -7,6 +9,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,7 +26,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "orders")
-public class Order extends BaseEntity{
+public class Order extends BaseEntity {
 
     @Column(name = "price")
     private Float price;
@@ -51,12 +54,19 @@ public class Order extends BaseEntity{
     @Column(name = "shipping_cost")
     private Float shippingCost;
 
-    @Column(name = "code")
-    private String code;
+    @Nullable
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "code_id")
+    private DiscountCode discountCode;
 
     @Column(name = "address")
     private String address;
 
     @Column(name = "customer_notes")
     private String customerNotes;
+
+    @OneToMany(mappedBy = "order", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<OrderDetails> orderDetails;
 }

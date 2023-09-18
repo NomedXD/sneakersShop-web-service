@@ -15,7 +15,7 @@ public class ImageCsvConverter extends AbstractBeanField<ImageDto, String> {
         Matcher matcherPath = pattern.matcher(s);
         if (matcherId.find() && matcherPath.find())
         {
-            return new ImageDto(Integer.parseInt(matcherId.group(1)), matcherPath.group(1));
+            return new ImageDto();
         }
        return null;
     }

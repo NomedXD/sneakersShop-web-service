@@ -7,7 +7,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -28,10 +28,9 @@ public class Product extends BaseEntity {
     @Column(name = "name")
     private String name;
 
-    // Может быть OneToMany в будущем, если будет карусель картинок(тогда еще будет поле boolean primeImage)
-    @OneToOne(optional = false, orphanRemoval = true)
-    @JoinColumn(name = "image_id")
-    private Image image;
+    @OneToMany(orphanRemoval = true, fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    @JoinColumn(name = "product_id")
+    private List<Image> images;
 
     @Column(name = "description")
     private String description;

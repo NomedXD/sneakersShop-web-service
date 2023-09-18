@@ -1,8 +1,10 @@
 package by.teachmeskills.sneakersshopwebserviceexam.controllers;
 
 import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.CartDto;
-import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.CheckoutRequestResponseWrapperDto;
+import by.teachmeskills.sneakersshopwebserviceexam.dto.basic_dto.OrderDto;
+import by.teachmeskills.sneakersshopwebserviceexam.dto.complex_wrappwer_dto.CheckoutRequestWrapperDto;
 import by.teachmeskills.sneakersshopwebserviceexam.exception.ValidationException;
+import by.teachmeskills.sneakersshopwebserviceexam.services.AuthService;
 import by.teachmeskills.sneakersshopwebserviceexam.services.OrderService;
 import by.teachmeskills.sneakersshopwebserviceexam.services.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,10 +34,12 @@ import java.util.Objects;
 public class CartController {
     private final ProductService productService;
     private final OrderService orderService;
+    private final AuthService authService;
 
-    public CartController(ProductService productService, OrderService orderService) {
+    public CartController(ProductService productService, OrderService orderService, AuthService authService) {
         this.productService = productService;
         this.orderService = orderService;
+        this.authService = authService;
     }
 
     @Operation(
@@ -49,11 +54,13 @@ public class CartController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Cart object validation error - server error"
+                    description = "Cart object validation error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
     @DeleteMapping("/remove/{productId}")
@@ -79,11 +86,13 @@ public class CartController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Cart object validation error - server error"
+                    description = "Cart object validation error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
     @PutMapping("/{productId}")
@@ -105,29 +114,26 @@ public class CartController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Successful checkout",
-                    content = @Content(schema = @Schema(implementation = CartDto.class))
+                    content = @Content(schema = @Schema(implementation = OrderDto.class))
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Request CheckoutRequestResponseWrapperDto object validation error - server error"
+                    description = "Request cartDto object validation error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Database error - server error"
+                    description = "Database error - server error",
+                    content = @Content(schema = @Schema(implementation = String.class))
             )
     })
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/checkout")
-    public ResponseEntity<CheckoutRequestResponseWrapperDto> submitCheckout(@Valid @RequestBody CheckoutRequestResponseWrapperDto requestBody, BindingResult result) {
+    public ResponseEntity<OrderDto> submitCheckout(@Valid @RequestBody CheckoutRequestWrapperDto checkoutRequestWrapperDto, BindingResult result) {
         if (!result.hasErrors()) {
-            return orderService.applyOrder(requestBody.getOrder(), requestBody.getCart(), requestBody.getUser());
+            return orderService.applyOrder(checkoutRequestWrapperDto.getOrder(), checkoutRequestWrapperDto.getCart(), authService.getPrincipal().orElse(null));
         } else {
             throw new ValidationException(Objects.requireNonNull(result.getFieldError()).getDefaultMessage());
         }
     }
-    /*
-        @PostMapping("/apply_quantity")
-    public ModelAndView applyQuantity(@SessionAttribute(name = EshopConstants.SHOPPING_CART) Cart cart, HttpServletRequest request) {
-        return productService.applyProductsQuantity(cart, request);
-    }
-     */
 }

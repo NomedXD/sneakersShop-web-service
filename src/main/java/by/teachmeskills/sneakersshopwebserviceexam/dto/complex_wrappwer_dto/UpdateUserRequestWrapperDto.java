@@ -16,8 +16,5 @@ import lombok.experimental.SuperBuilder;
 public class UpdateUserRequestWrapperDto {
 
     @NotNull(message = "Updated user field in updateUserRequestWrapperDto is null")
-    private UserDto updatedUserFields;
-
-    @NotNull(message = "User field in updateUserRequestWrapperDto is null")
     private UserDto user;
 }

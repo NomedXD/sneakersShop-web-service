@@ -43,10 +43,6 @@ public class UserDto {
     @NotNull(message = "Date field in userDto is null")
     private LocalDate date;
 
-    @NotNull(message = "Current balance field in userDto is null")
-    @PositiveOrZero(message = "Current balance in userDto must be positive or zero")
-    private Float currentBalance;
-
     private String mobile;
 
     private String street;
@@ -58,4 +54,9 @@ public class UserDto {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<OrderDto> orders;
+
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @NotNull(message = "Role field in userDto is null")
+    private List<RoleDto> roles;
 }
