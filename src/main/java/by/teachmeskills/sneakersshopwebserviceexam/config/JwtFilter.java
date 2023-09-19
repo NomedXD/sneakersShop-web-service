@@ -9,6 +9,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,7 +28,7 @@ public class JwtFilter extends GenericFilterBean {
     private final PasswordEncoder encoder;
 
     @Autowired
-    public JwtFilter(JwtProvider jwtProvider, UserRepository userRepository, PasswordEncoder encoder) {
+    public JwtFilter(JwtProvider jwtProvider, @Lazy UserRepository userRepository, PasswordEncoder encoder) {
         this.jwtProvider = jwtProvider;
         this.userRepository = userRepository;
         this.encoder = encoder;
